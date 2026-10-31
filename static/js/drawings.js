@@ -21,6 +21,10 @@ class TacticalDrawings {
     this.selectedDrawing = null;
   }
 
+  setLineWidth(width) {
+    this.drawLineWidth = parseFloat(width) || 3.5;
+  }
+
   isDrawingTool(tool) {
     return [
       "arrow_solid",

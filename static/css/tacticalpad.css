@@ -119,3 +119,22 @@
 .animate-pulse-slow {
   animation: tactical-pulse 2s infinite ease-in-out;
 }
+
+/* Cursores de Precisão e Pan Estilo Software Desktop */
+.cursor-grab {
+  cursor: grab !important;
+}
+
+.cursor-grabbing {
+  cursor: grabbing !important;
+}
+
+.cursor-eraser {
+  cursor: cell !important;
+}
+
+/* Transição Suave da Ficha Técnica Colapsável */
+#sidebar-drill-sheet {
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease, padding 0.3s ease;
+}
+

@@ -21,6 +21,12 @@ class TacticalBoardCore {
     this.historyIndex = -1;
     this.maxHistory = 40;
 
+    // Estado de Zoom & Pan Interativo Estilo Desktop
+    this.isPanning = false;
+    this.panStart = { x: 0, y: 0 };
+    this.isSpacePressed = false;
+    this.isPanModeActive = false;
+
     this.setupEvents();
     this.playersMgr.initDefault();
     this.saveState();
@@ -32,10 +38,38 @@ class TacticalBoardCore {
     window.addEventListener("pointerup", this.handlePointerUp.bind(this));
     window.addEventListener("pointercancel", this.handlePointerUp.bind(this));
 
+    // Zoom com a roda do mouse centrado no cursor
+    this.canvas.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      const rect = this.canvas.getBoundingClientRect();
+      const screenX = e.clientX - rect.left;
+      const screenY = e.clientY - rect.top;
+      const factor = e.deltaY < 0 ? 1.15 : 0.87;
+      this.pitch.setZoom(this.pitch.zoom * factor, screenX, screenY);
+      this.render();
+      this.onZoomChange?.(this.pitch.zoom);
+    }, { passive: false });
+
+    // Previne menu de contexto padrão com botão direito para permitir pan fluido
+    this.canvas.addEventListener("contextmenu", (e) => e.preventDefault());
+
+    // Tecla Espaço para arrastar a quadra (Pan) & Delete para remover atletas
     window.addEventListener("keydown", (e) => {
+      if (e.code === "Space" && !["INPUT", "TEXTAREA"].includes(document.activeElement.tagName)) {
+        e.preventDefault();
+        this.isSpacePressed = true;
+        this.canvas.classList.add("cursor-grab");
+      }
       if (["Delete", "Backspace"].includes(e.key)) {
         if (["INPUT", "TEXTAREA"].includes(document.activeElement.tagName)) return;
         this.playersMgr.deleteSelected();
+      }
+    });
+
+    window.addEventListener("keyup", (e) => {
+      if (e.code === "Space") {
+        this.isSpacePressed = false;
+        this.canvas.classList.remove("cursor-grab");
       }
     });
   }
@@ -49,7 +83,15 @@ class TacticalBoardCore {
     const screenY = e.clientY - rect.top;
     const courtPos = this.pitch.canvasToCourt(screenX, screenY);
 
-    // Borracha
+    // 1. Pan (arrastar a quadra) via botão do meio, botão direito, barra de espaço ou modo Pan ativo
+    if (e.button === 1 || e.button === 2 || this.isSpacePressed || this.isPanModeActive) {
+      this.isPanning = true;
+      this.panStart = { x: e.clientX, y: e.clientY };
+      this.canvas.classList.add("cursor-grabbing");
+      return;
+    }
+
+    // 2. Borracha Tática
     if (this.drawingsMgr.activeTool === "eraser") {
       const hitDraw = this.drawingsMgr.findHitDrawing(screenX, screenY);
       if (hitDraw) {
@@ -74,24 +116,24 @@ class TacticalBoardCore {
       return;
     }
 
-    // Ferramentas de Desenho
+    // 3. Ferramentas de Desenho Tático
     if (this.drawingsMgr.isDrawingTool(this.drawingsMgr.activeTool)) {
       this.drawingsMgr.startDrawing(courtPos);
       return;
     }
 
-    // Seleção / Mover
+    // 4. Seleção / Mover Atletas & Objetos
     if (this.drawingsMgr.activeTool === "select") {
-      // 1. Alça de Rotação do Jogador
+      // 4.1. Alça de Rotação / Visão do Jogador
       if (this.playersMgr.selectedItem && this.playersMgr.selectedType === "player") {
-        if (this.playersMgr.isHitRotationHandle(courtPos, this.playersMgr.selectedItem)) {
+        if (this.playersMgr.isHitRotationHandle(screenX, screenY, this.playersMgr.selectedItem)) {
           this.playersMgr.isRotating = true;
           this.canvas.classList.add("cursor-grabbing");
           return;
         }
       }
 
-      // 2. Jogador
+      // 4.2. Jogador
       const hitPlayer = this.playersMgr.findHitPlayer(courtPos);
       if (hitPlayer) {
         this.playersMgr.selectItem(hitPlayer, "player", courtPos);
@@ -99,7 +141,7 @@ class TacticalBoardCore {
         return;
       }
 
-      // 3. Bola
+      // 4.3. Bola
       const hitBall = this.playersMgr.findHitBall(courtPos);
       if (hitBall) {
         this.playersMgr.selectItem(hitBall, "ball", courtPos);
@@ -107,7 +149,7 @@ class TacticalBoardCore {
         return;
       }
 
-      // 4. Equipamento
+      // 4.4. Equipamento de Treino
       const hitEq = this.playersMgr.findHitEquipment(courtPos);
       if (hitEq) {
         this.playersMgr.selectItem(hitEq, "equipment", courtPos);
@@ -127,9 +169,19 @@ class TacticalBoardCore {
     const screenY = e.clientY - rect.top;
     const courtPos = this.pitch.canvasToCourt(screenX, screenY);
 
+    if (this.isPanning) {
+      const dx = e.clientX - this.panStart.x;
+      const dy = e.clientY - this.panStart.y;
+      this.pitch.panBy(dx, dy);
+      this.panStart = { x: e.clientX, y: e.clientY };
+      this.render();
+      return;
+    }
+
     if (this.playersMgr.isRotating && this.playersMgr.selectedItem) {
-      const dx = courtPos.x - this.playersMgr.selectedItem.x;
-      const dy = courtPos.y - this.playersMgr.selectedItem.y;
+      const pt = this.pitch.courtToCanvas(this.playersMgr.selectedItem.x, this.playersMgr.selectedItem.y);
+      const dx = screenX - pt.x;
+      const dy = screenY - pt.y;
       this.playersMgr.selectedItem.angle = Math.atan2(dy, dx);
       this.render();
       return;
@@ -157,6 +209,14 @@ class TacticalBoardCore {
   }
 
   handlePointerUp(e) {
+    if (this.isPanning) {
+      this.isPanning = false;
+      this.canvas.classList.remove("cursor-grabbing");
+      if (this.isSpacePressed || this.isPanModeActive) {
+        this.canvas.classList.add("cursor-grab");
+      }
+    }
+
     if (this.playersMgr.isDragging || this.playersMgr.isRotating) {
       this.playersMgr.isDragging = false;
       this.playersMgr.isRotating = false;
@@ -420,17 +480,101 @@ class TacticalPadApp {
       });
     });
 
-    // 10. Salvar e Exportar
+    // 10. Espessura do Traço
+    document.querySelectorAll(".stroke-width-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const width = parseFloat(btn.dataset.width) || 3.5;
+        this.board.drawingsMgr.setLineWidth(width);
+        document.querySelectorAll(".stroke-width-btn").forEach(b => {
+          b.classList.remove("text-amber-400", "bg-slate-800", "font-bold");
+          b.classList.add("text-slate-400");
+        });
+        btn.classList.remove("text-slate-400");
+        btn.classList.add("text-amber-400", "bg-slate-800", "font-bold");
+      });
+    });
+
+    // 11. HUD de Zoom & Pan da Quadra
+    document.getElementById("btn-zoom-in")?.addEventListener("click", () => {
+      this.board.pitch.zoomIn();
+      this.board.render();
+      this.updateZoomLevelText();
+    });
+    document.getElementById("btn-zoom-out")?.addEventListener("click", () => {
+      this.board.pitch.zoomOut();
+      this.board.render();
+      this.updateZoomLevelText();
+    });
+    document.getElementById("btn-zoom-reset")?.addEventListener("click", () => {
+      this.board.pitch.resetZoomPan();
+      this.board.render();
+      this.updateZoomLevelText();
+    });
+    document.getElementById("btn-fit-screen")?.addEventListener("click", () => {
+      this.board.pitch.resetZoomPan();
+      this.board.render();
+      this.updateZoomLevelText();
+    });
+    document.getElementById("btn-toggle-pan")?.addEventListener("click", (e) => {
+      this.board.isPanModeActive = !this.board.isPanModeActive;
+      e.currentTarget.classList.toggle("bg-amber-400", this.board.isPanModeActive);
+      e.currentTarget.classList.toggle("text-slate-950", this.board.isPanModeActive);
+      e.currentTarget.classList.toggle("font-bold", this.board.isPanModeActive);
+      this.board.canvas.classList.toggle("cursor-grab", this.board.isPanModeActive);
+      if (!this.board.isPanModeActive) {
+        this.board.canvas.classList.remove("cursor-grab");
+      }
+    });
+    this.board.onZoomChange = (z) => this.updateZoomLevelText(z);
+
+    // 12. Seletor Rápido de Temas do Piso da Quadra
+    document.querySelectorAll(".theme-preset-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        this.applyQuickTheme(btn.dataset.theme);
+      });
+    });
+
+    // 13. Barra Lateral Colapsável da Ficha Técnica
+    document.getElementById("btn-toggle-sidebar-right")?.addEventListener("click", () => {
+      const sheet = document.getElementById("sidebar-drill-sheet");
+      const reopenBtn = document.getElementById("btn-reopen-sidebar-right");
+      if (sheet) {
+        sheet.classList.add("w-0", "overflow-hidden", "opacity-0", "p-0", "border-0");
+        sheet.classList.remove("w-80");
+      }
+      if (reopenBtn) reopenBtn.classList.remove("hidden");
+      setTimeout(() => {
+        this.board.pitch.updateMetrics();
+        this.board.render();
+      }, 310);
+    });
+
+    document.getElementById("btn-reopen-sidebar-right")?.addEventListener("click", () => {
+      const sheet = document.getElementById("sidebar-drill-sheet");
+      const reopenBtn = document.getElementById("btn-reopen-sidebar-right");
+      if (sheet) {
+        sheet.classList.remove("w-0", "overflow-hidden", "opacity-0", "p-0", "border-0");
+        sheet.classList.add("w-80");
+      }
+      if (reopenBtn) reopenBtn.classList.add("hidden");
+      setTimeout(() => {
+        this.board.pitch.updateMetrics();
+        this.board.render();
+      }, 310);
+    });
+
+    // 14. Salvar e Exportar (PNG Full HD e Gravação de Vídeo WebM)
     document.getElementById("btn-save-to-library")?.addEventListener("click", () => this.saveCurrentDrillToBackend());
     document.getElementById("btn-export-highres-png")?.addEventListener("click", () => this.exportHighResPng());
+    document.getElementById("btn-export-video-webm")?.addEventListener("click", () => this.exportVideoWebM());
 
-    // 11. Modal de Configurações da Quadra
+    // 15. Modal de Configurações da Quadra
     this.setupCourtSettingsModal();
 
-    // 12. Modal de Professores
+    // 16. Modal de Professores
     this.setupProfessorModal();
 
-    // 13. Filtros da Biblioteca
+    // 17. Filtros da Biblioteca
     this.setupLibraryFilters();
   }
 
@@ -548,13 +692,25 @@ class TacticalPadApp {
                    oninput="window.app.updatePlayerName(this.value)"
                    class="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1 text-white font-medium" />
           </div>
+
+          <!-- Direção do Olhar / Orientação Corporal -->
+          <div class="space-y-1 pt-1 border-t border-slate-800">
+            <span class="text-slate-400 text-[10px] block">Orientação Corporal (Olhar):</span>
+            <div class="grid grid-cols-4 gap-1">
+              <button onclick="window.app.setPlayerAngle(0)" class="py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-semibold text-center">0° (Dir)</button>
+              <button onclick="window.app.setPlayerAngle(90)" class="py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-semibold text-center">90° (Baixo)</button>
+              <button onclick="window.app.setPlayerAngle(180)" class="py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-semibold text-center">180° (Esq)</button>
+              <button onclick="window.app.setPlayerAngle(270)" class="py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-semibold text-center">270° (Cima)</button>
+            </div>
+          </div>
+
           <div class="flex gap-1.5 pt-1">
             <button onclick="window.app.rotatePlayer(45)"
-                    class="flex-1 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-medium flex items-center justify-center gap-1">
+                    class="flex-1 py-1 rounded bg-amber-400/20 hover:bg-amber-400/30 text-amber-300 text-[11px] font-semibold flex items-center justify-center gap-1 border border-amber-400/30">
               <i data-lucide="rotate-cw" class="w-3 h-3"></i> Girar +45°
             </button>
             <button onclick="window.app.togglePlayerTeam()"
-                    class="flex-1 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-medium">
+                    class="flex-1 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-medium border border-slate-700">
               Trocar Time
             </button>
           </div>
@@ -574,7 +730,7 @@ class TacticalPadApp {
           </div>
           <button onclick="window.app.rotatePlayer(45)"
                   class="w-full py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium flex items-center justify-center gap-1">
-            <i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i> Girar Equipamento
+            <i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i> Girar +45°
           </button>
         </div>
       `;
@@ -624,6 +780,126 @@ class TacticalPadApp {
       this.board.saveState();
       this.board.render();
     }
+  }
+
+  setPlayerAngle(deg) {
+    const item = this.board.playersMgr.selectedItem;
+    if (item) {
+      item.angle = (deg * Math.PI) / 180;
+      this.board.saveState();
+      this.board.render();
+    }
+  }
+
+  updateZoomLevelText(zoom) {
+    const textEl = document.getElementById("zoom-level-text");
+    if (!textEl) return;
+    const z = zoom !== undefined ? zoom : this.board.pitch.zoom;
+    textEl.textContent = `${Math.round(z * 100)}%`;
+  }
+
+  async applyQuickTheme(presetKey) {
+    const themes = {
+      blue: { pitchColor: "#1E3A5F", pitchAreaColor: "#142640", pitchPreset: "solid", courtLineColor: "#FFFFFF" },
+      wood: { pitchColor: "#8D5325", pitchAreaColor: "#673711", pitchPreset: "wood", courtLineColor: "#FFFFFF" },
+      green: { pitchColor: "#065F46", pitchAreaColor: "#044E39", pitchPreset: "solid", courtLineColor: "#FFFFFF" },
+      dark: { pitchColor: "#1E293B", pitchAreaColor: "#0F172A", pitchPreset: "solid", courtLineColor: "#38BDF8" }
+    };
+    const t = themes[presetKey] || themes.blue;
+    window.SCHOOL_CONFIG = window.SCHOOL_CONFIG || {};
+    window.SCHOOL_CONFIG.pitchColor = t.pitchColor;
+    window.SCHOOL_CONFIG.pitchAreaColor = t.pitchAreaColor;
+    window.SCHOOL_CONFIG.pitchPreset = t.pitchPreset;
+    window.SCHOOL_CONFIG.courtLineColor = t.courtLineColor;
+
+    this.applyCSSVariables();
+    this.board.pitch.render();
+    this.showToast(`Tema do piso ativado: ${presetKey.toUpperCase()}`, "success");
+
+    try {
+      await window.tacticalApi.saveSchoolConfig(window.SCHOOL_CONFIG);
+    } catch (e) {
+      // Fallback silencioso
+    }
+  }
+
+  async exportVideoWebM() {
+    const anim = this.board.animationEngine;
+    if (anim.keyframes.length < 2) {
+      this.showToast("Adicione pelo menos 2 quadros para gravar o vídeo da animação!", "error");
+      return;
+    }
+
+    this.showToast("Iniciando gravação do vídeo da animação em alta resolução...", "info");
+
+    this.board.pitch.resetZoomPan();
+    this.board.render();
+    this.updateZoomLevelText(1.0);
+
+    const canvas = this.board.canvas;
+    let stream;
+    try {
+      stream = canvas.captureStream(30);
+    } catch (err) {
+      this.showToast("Navegador não suporta gravação de canvas.", "error");
+      return;
+    }
+
+    let mediaRecorder;
+    const mimeTypes = ["video/webm;codecs=vp9", "video/webm;codecs=vp8", "video/webm"];
+    let chosenMime = "";
+    for (const mime of mimeTypes) {
+      if (typeof MediaRecorder !== "undefined" && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(mime)) {
+        chosenMime = mime;
+        break;
+      }
+    }
+
+    try {
+      mediaRecorder = chosenMime ? new MediaRecorder(stream, { mimeType: chosenMime }) : new MediaRecorder(stream);
+    } catch (e) {
+      try {
+        mediaRecorder = new MediaRecorder(stream);
+      } catch (e2) {
+        this.showToast("Erro ao inicializar gravador de vídeo.", "error");
+        return;
+      }
+    }
+
+    const chunks = [];
+    mediaRecorder.ondataavailable = (e) => {
+      if (e.data && e.data.size > 0) chunks.push(e.data);
+    };
+
+    mediaRecorder.onstop = () => {
+      const blob = new Blob(chunks, { type: "video/webm" });
+      const url = URL.createObjectURL(blob);
+      const title = document.getElementById("drill-title-input")?.value.trim() || "Treino";
+      const safeTitle = title.replace(/[^a-zA-Z0-9_-]/g, "_");
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `TacticalPad_${safeTitle}_animacao.webm`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      this.showToast("Vídeo da animação baixado com sucesso!", "success");
+    };
+
+    mediaRecorder.start();
+
+    const wasLooping = anim.isLooping;
+    anim.isLooping = false;
+    anim.stop();
+    anim.play();
+
+    const totalDurationMs = (anim.keyframes.length - 1) * (anim.frameDuration / anim.speed) * 1000 + 450;
+
+    setTimeout(() => {
+      anim.pause();
+      anim.isLooping = wasLooping;
+      if (mediaRecorder.state === "recording") {
+        mediaRecorder.stop();
+      }
+    }, totalDurationMs);
   }
 
   // --- INTEGRAÇÃO COM DJANGO BACKEND ---

@@ -208,13 +208,19 @@ class PlayerEntityManager {
     return null;
   }
 
-  isHitRotationHandle(courtPos, player) {
-    const distHandle = 34;
-    const handleX = player.x + Math.cos(player.angle || 0) * distHandle;
-    const handleY = player.y + Math.sin(player.angle || 0) * distHandle;
-    const dx = courtPos.x - handleX;
-    const dy = courtPos.y - handleY;
-    return dx * dx + dy * dy <= 14 * 14;
+  isHitRotationHandle(screenX, screenY, player) {
+    if (!player) return false;
+    const pt = this.pitch.courtToCanvas(player.x, player.y);
+    const scale = this.pitch.metrics.scale;
+    const radius = Math.max(14, 19 * scale);
+    const handleDist = radius * 1.85;
+    const angle = player.angle || 0;
+    const handleX = pt.x + Math.cos(angle) * handleDist;
+    const handleY = pt.y + Math.sin(angle) * handleDist;
+    const dx = screenX - handleX;
+    const dy = screenY - handleY;
+    const hitR = Math.max(12, 14 * scale);
+    return dx * dx + dy * dy <= hitR * hitR;
   }
 
   findHitBall(courtPos) {

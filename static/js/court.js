@@ -20,8 +20,16 @@ class PitchRenderer {
     this.logoLoaded = false;
     this.loadLogo(window.SCHOOL_CONFIG?.logoUrl || "");
 
+    // Controle de Zoom & Pan Estilo Desktop App (TacticalPad)
+    this.zoom = 1.0;
+    this.panX = 0;
+    this.panY = 0;
+    this.minZoom = 0.6;
+    this.maxZoom = 3.5;
+
     this.metrics = {
       scale: 1,
+      baseScale: 1,
       offsetX: 0,
       offsetY: 0,
       pitchWidth: 0,
@@ -45,8 +53,47 @@ class PitchRenderer {
   setViewMode(mode) {
     if (["horizontal", "vertical", "half"].includes(mode)) {
       this.viewMode = mode;
+      this.resetZoomPan();
+    }
+  }
+
+  setZoom(newZoom, screenCenterX, screenCenterY) {
+    const clampedZoom = Math.max(this.minZoom, Math.min(this.maxZoom, newZoom));
+    if (Math.abs(clampedZoom - this.zoom) < 0.001) return;
+
+    if (screenCenterX !== undefined && screenCenterY !== undefined) {
+      const courtBefore = this.canvasToCourt(screenCenterX, screenCenterY);
+      this.zoom = clampedZoom;
+      this.updateMetrics();
+      const canvasAfter = this.courtToCanvas(courtBefore.x, courtBefore.y);
+      this.panX += (screenCenterX - canvasAfter.x);
+      this.panY += (screenCenterY - canvasAfter.y);
+      this.updateMetrics();
+    } else {
+      this.zoom = clampedZoom;
       this.updateMetrics();
     }
+  }
+
+  zoomIn() {
+    this.setZoom(this.zoom * 1.25);
+  }
+
+  zoomOut() {
+    this.setZoom(this.zoom / 1.25);
+  }
+
+  resetZoomPan() {
+    this.zoom = 1.0;
+    this.panX = 0;
+    this.panY = 0;
+    this.updateMetrics();
+  }
+
+  panBy(dx, dy) {
+    this.panX += dx;
+    this.panY += dy;
+    this.updateMetrics();
   }
 
   updateMetrics() {
@@ -78,15 +125,17 @@ class PitchRenderer {
 
     const scaleX = (displayWidth - 20) / targetVW;
     const scaleY = (displayHeight - 20) / targetVH;
-    const scale = Math.min(scaleX, scaleY);
+    const baseScale = Math.min(scaleX, scaleY);
+    const effectiveScale = baseScale * this.zoom;
 
-    const pitchWidth = targetVW * scale;
-    const pitchHeight = targetVH * scale;
-    const offsetX = (displayWidth - pitchWidth) / 2;
-    const offsetY = (displayHeight - pitchHeight) / 2;
+    const pitchWidth = targetVW * effectiveScale;
+    const pitchHeight = targetVH * effectiveScale;
+    const offsetX = (displayWidth - pitchWidth) / 2 + this.panX;
+    const offsetY = (displayHeight - pitchHeight) / 2 + this.panY;
 
     this.metrics = {
-      scale,
+      scale: effectiveScale,
+      baseScale,
       offsetX,
       offsetY,
       pitchWidth,
@@ -435,6 +484,18 @@ class PitchRenderer {
     ctx.beginPath();
     ctx.moveTo(p1.x, p1.y);
     ctx.lineTo(p2.x, p2.y);
+    ctx.stroke();
+
+    // Marcas de barreira regulamentar a 5m (125 unidades) acima e abaixo da marca dos 10m
+    const tickUp1 = this.courtToCanvas(x - 5, 250 - 125);
+    const tickUp2 = this.courtToCanvas(x + 5, 250 - 125);
+    const tickDown1 = this.courtToCanvas(x - 5, 250 + 125);
+    const tickDown2 = this.courtToCanvas(x + 5, 250 + 125);
+    ctx.beginPath();
+    ctx.moveTo(tickUp1.x, tickUp1.y);
+    ctx.lineTo(tickUp2.x, tickUp2.y);
+    ctx.moveTo(tickDown1.x, tickDown1.y);
+    ctx.lineTo(tickDown2.x, tickDown2.y);
     ctx.stroke();
   }
 

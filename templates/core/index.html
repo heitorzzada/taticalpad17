@@ -71,19 +71,67 @@
         </button>
       </div>
 
-      <!-- Configurações da Quadra & Identidade -->
+      <!-- Seletor Rápido de Tema da Quadra -->
+      <div class="relative group">
+        <button id="btn-court-theme-dropdown"
+                data-tooltip="Tema do Piso da Quadra"
+                class="px-2.5 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-amber-400 border border-slate-700/80 text-xs font-semibold flex items-center gap-1.5 transition-all">
+          <i data-lucide="palette" class="w-3.5 h-3.5 text-amber-400"></i>
+          <span class="hidden xl:inline text-[11px]">Tema</span>
+          <i data-lucide="chevron-down" class="w-3 h-3 text-slate-400"></i>
+        </button>
+        <div class="absolute right-0 mt-1 w-48 bg-slate-900 border border-slate-700/80 rounded-xl shadow-2xl p-1.5 hidden group-hover:block z-50">
+          <button data-theme="blue" class="theme-preset-btn w-full text-left px-2.5 py-1.5 rounded-lg text-xs hover:bg-slate-800 flex items-center gap-2 text-slate-200">
+            <span class="w-3.5 h-3.5 rounded-full bg-blue-600 border border-white/40"></span>
+            <span>Azul Futsal</span>
+          </button>
+          <button data-theme="wood" class="theme-preset-btn w-full text-left px-2.5 py-1.5 rounded-lg text-xs hover:bg-slate-800 flex items-center gap-2 text-slate-200">
+            <span class="w-3.5 h-3.5 rounded-full bg-amber-700 border border-white/40"></span>
+            <span>Madeira Parquet</span>
+          </button>
+          <button data-theme="green" class="theme-preset-btn w-full text-left px-2.5 py-1.5 rounded-lg text-xs hover:bg-slate-800 flex items-center gap-2 text-slate-200">
+            <span class="w-3.5 h-3.5 rounded-full bg-emerald-700 border border-white/40"></span>
+            <span>Verde Futsal</span>
+          </button>
+          <button data-theme="dark" class="theme-preset-btn w-full text-left px-2.5 py-1.5 rounded-lg text-xs hover:bg-slate-800 flex items-center gap-2 text-slate-200">
+            <span class="w-3.5 h-3.5 rounded-full bg-slate-800 border border-white/40"></span>
+            <span>Grafite Técnico</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Configurações Completas da Quadra & Identidade -->
       <button id="btn-open-court-settings"
-              data-tooltip="Configurações da Quadra & Identidade"
+              data-tooltip="Configurações da Escolinha & Quadra"
               class="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-amber-400 border border-slate-700/80 transition-all">
-        <i data-lucide="palette" class="w-4 h-4"></i>
+        <i data-lucide="settings" class="w-4 h-4"></i>
       </button>
 
-      <!-- Exportar PNG Full HD -->
-      <button id="btn-export-highres-png"
-              class="py-1.5 px-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-bold flex items-center gap-1.5 transition-all shadow-md shadow-amber-400/20">
-        <i data-lucide="download" class="w-4 h-4"></i>
-        <span class="hidden sm:inline">Exportar PNG</span>
-      </button>
+      <!-- Botão Exportar Imagem / Vídeo -->
+      <div class="relative group">
+        <button id="btn-export-menu"
+                class="py-1.5 px-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-bold flex items-center gap-1.5 transition-all shadow-md shadow-amber-400/20">
+          <i data-lucide="download" class="w-4 h-4"></i>
+          <span>Exportar</span>
+          <i data-lucide="chevron-down" class="w-3 h-3"></i>
+        </button>
+        <div class="absolute right-0 mt-1 w-56 bg-slate-900 border border-slate-700/80 rounded-xl shadow-2xl p-1.5 hidden group-hover:block z-50">
+          <button id="btn-export-highres-png" class="w-full text-left px-3 py-2 rounded-lg text-xs hover:bg-slate-800 flex items-center gap-2.5 text-slate-200 font-semibold transition-colors">
+            <i data-lucide="image" class="w-4 h-4 text-amber-400"></i>
+            <div>
+              <div class="text-white">Imagem PNG Full HD</div>
+              <div class="text-[10px] text-slate-400 font-normal">Prancheta tática 1080p</div>
+            </div>
+          </button>
+          <button id="btn-export-video-webm" class="w-full text-left px-3 py-2 rounded-lg text-xs hover:bg-slate-800 flex items-center gap-2.5 text-slate-200 font-semibold transition-colors">
+            <i data-lucide="film" class="w-4 h-4 text-rose-400"></i>
+            <div>
+              <div class="text-white">Vídeo da Animação</div>
+              <div class="text-[10px] text-slate-400 font-normal">Gravar jogada em WebM</div>
+            </div>
+          </button>
+        </div>
+      </div>
     </div>
   </header>
 
@@ -280,36 +328,88 @@
 
           <div class="w-8 h-px bg-slate-800 my-0.5"></div>
 
+          <!-- Seletor de Cores do Traço -->
           <div class="flex flex-col gap-1.5 items-center">
-            <button data-color="#FFCC00" class="color-swatch-btn w-5 h-5 rounded-full bg-amber-400 ring-2 ring-white shadow"></button>
-            <button data-color="#FFFFFF" class="color-swatch-btn w-5 h-5 rounded-full bg-white shadow"></button>
-            <button data-color="#DC2626" class="color-swatch-btn w-5 h-5 rounded-full bg-red-600 shadow"></button>
-            <button data-color="#2563EB" class="color-swatch-btn w-5 h-5 rounded-full bg-blue-600 shadow"></button>
-            <button data-color="#10B981" class="color-swatch-btn w-5 h-5 rounded-full bg-emerald-500 shadow"></button>
+            <button data-color="#FFCC00" data-tooltip="Amarelo Ouro" class="color-swatch-btn w-5 h-5 rounded-full bg-amber-400 ring-2 ring-white shadow"></button>
+            <button data-color="#FFFFFF" data-tooltip="Branco Linha" class="color-swatch-btn w-5 h-5 rounded-full bg-white shadow"></button>
+            <button data-color="#DC2626" data-tooltip="Vermelho Marcação" class="color-swatch-btn w-5 h-5 rounded-full bg-red-600 shadow"></button>
+            <button data-color="#2563EB" data-tooltip="Azul Tático" class="color-swatch-btn w-5 h-5 rounded-full bg-blue-600 shadow"></button>
+            <button data-color="#10B981" data-tooltip="Verde Movimento" class="color-swatch-btn w-5 h-5 rounded-full bg-emerald-500 shadow"></button>
+          </div>
+
+          <div class="w-8 h-px bg-slate-800 my-0.5"></div>
+
+          <!-- Seletor de Espessura do Traço (Linha Fina, Média, Grossa) -->
+          <div class="flex flex-col gap-1 items-center bg-slate-950/80 p-1 rounded-xl border border-slate-800">
+            <button data-width="2" data-tooltip="Linha Fina (2px)" class="stroke-width-btn p-1.5 rounded-lg text-slate-400 hover:text-white transition-all">
+              <div class="w-3.5 h-0.5 bg-current rounded-full"></div>
+            </button>
+            <button data-width="3.5" data-tooltip="Linha Média (3.5px)" class="stroke-width-btn p-1.5 rounded-lg text-amber-400 bg-slate-800 font-bold transition-all">
+              <div class="w-3.5 h-1 bg-current rounded-full"></div>
+            </button>
+            <button data-width="6" data-tooltip="Linha Grossa (6px)" class="stroke-width-btn p-1.5 rounded-lg text-slate-400 hover:text-white transition-all">
+              <div class="w-3.5 h-1.5 bg-current rounded-full"></div>
+            </button>
           </div>
         </aside>
 
         <!-- Container do Canvas Principal -->
-        <div id="canvas-container" class="flex-1 h-full w-full relative overflow-hidden flex items-center justify-center">
+        <div id="canvas-container" class="flex-1 h-full w-full relative overflow-hidden flex items-center justify-center bg-slate-950">
           <canvas id="tactical-canvas"></canvas>
 
           <!-- Inspetor Popover Flutuante de Jogador/Equipamento -->
-          <div id="item-inspector-panel" class="absolute bottom-4 left-4 z-20 w-64 hidden shadow-2xl">
+          <div id="item-inspector-panel" class="absolute bottom-4 left-4 z-20 w-72 hidden shadow-2xl">
           </div>
+
+          <!-- HUD Flutuante de Zoom & Pan Estilo Desktop TacticalPad -->
+          <div class="absolute bottom-4 right-4 z-20 flex items-center bg-slate-900/90 border border-slate-700/80 rounded-xl p-1 shadow-2xl backdrop-blur-md gap-1">
+            <button id="btn-zoom-in" data-tooltip="Aproximar Zoom (Scroll Up)" class="p-1.5 rounded-lg text-slate-300 hover:text-amber-400 hover:bg-slate-800 transition-all">
+              <i data-lucide="zoom-in" class="w-4 h-4"></i>
+            </button>
+            <button id="btn-zoom-reset" data-tooltip="Resetar Zoom (100%)" class="px-2 py-1 rounded-lg text-[11px] font-bold text-amber-400 hover:bg-slate-800 transition-all">
+              <span id="zoom-level-text">100%</span>
+            </button>
+            <button id="btn-zoom-out" data-tooltip="Afastar Zoom (Scroll Down)" class="p-1.5 rounded-lg text-slate-300 hover:text-amber-400 hover:bg-slate-800 transition-all">
+              <i data-lucide="zoom-out" class="w-4 h-4"></i>
+            </button>
+            <div class="w-px h-4 bg-slate-700 mx-0.5"></div>
+            <button id="btn-toggle-pan" data-tooltip="Modo Mãozinha / Arrastar Quadra (Pan)" class="p-1.5 rounded-lg text-slate-300 hover:text-amber-400 hover:bg-slate-800 transition-all">
+              <i data-lucide="hand" class="w-4 h-4"></i>
+            </button>
+            <button id="btn-fit-screen" data-tooltip="Ajustar à Tela (Fit)" class="p-1.5 rounded-lg text-slate-300 hover:text-amber-400 hover:bg-slate-800 transition-all">
+              <i data-lucide="maximize" class="w-4 h-4"></i>
+            </button>
+          </div>
+
+          <!-- Botão Flutuante para Reabrir Ficha Técnica (quando colapsada) -->
+          <button id="btn-reopen-sidebar-right"
+                  data-tooltip="Expandir Ficha Técnica do Treino"
+                  class="absolute top-3 right-3 z-20 p-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-amber-400 border border-slate-700/80 shadow-2xl backdrop-blur-md hidden transition-all">
+            <i data-lucide="chevrons-left" class="w-4 h-4"></i>
+          </button>
         </div>
 
-        <!-- Bloco de Notas Lateral do Treino (Direita) -->
-        <aside class="w-80 bg-slate-900/90 border-l border-slate-800/80 flex flex-col shrink-0 z-10 backdrop-blur-md">
+        <!-- Bloco de Notas Lateral do Treino (Direita - Painel Colapsável) -->
+        <aside id="sidebar-drill-sheet" class="w-80 bg-slate-900/90 border-l border-slate-800/80 flex flex-col shrink-0 z-10 backdrop-blur-md transition-all duration-300 ease-in-out">
           <div class="p-3 border-b border-slate-800 flex items-center justify-between">
-            <h3 class="text-xs font-bold text-white flex items-center gap-1.5 font-heading">
-              <i data-lucide="file-text" class="w-4 h-4 text-amber-400"></i>
-              Ficha Técnica do Treino
-            </h3>
-            <button id="btn-save-to-library"
-                    class="py-1 px-2.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs flex items-center gap-1 transition-all shadow-md shadow-amber-400/20">
-              <i data-lucide="bookmark-plus" class="w-3.5 h-3.5"></i>
-              Salvar no Banco
-            </button>
+            <div class="flex items-center gap-1.5">
+              <h3 class="text-xs font-bold text-white flex items-center gap-1.5 font-heading">
+                <i data-lucide="file-text" class="w-4 h-4 text-amber-400"></i>
+                Ficha Técnica
+              </h3>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <button id="btn-save-to-library"
+                      class="py-1 px-2.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs flex items-center gap-1 transition-all shadow-md shadow-amber-400/20">
+                <i data-lucide="bookmark-plus" class="w-3.5 h-3.5"></i>
+                Salvar
+              </button>
+              <button id="btn-toggle-sidebar-right"
+                      data-tooltip="Recolher Ficha Técnica"
+                      class="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
+                <i data-lucide="chevrons-right" class="w-4 h-4"></i>
+              </button>
+            </div>
           </div>
 
           <div class="p-3.5 flex-1 overflow-y-auto space-y-3 text-xs">
