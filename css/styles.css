@@ -6,14 +6,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
-  --primary-color: #004AAD;
-  --secondary-color: #FFCC00;
-  --pitch-color: #1E3A5F;
+  --primary-color: #0047AB; /* Azul Royal Amaporã */
+  --secondary-color: #38BDF8; /* Ciano / Azul Celeste */
+  --accent-gold: #F59E0B; /* Amarelo Ouro */
+  --pitch-color: #0F3A6D;
   --court-line-color: #FFFFFF;
-  --bg-dark: #0B1120;
-  --bg-surface: #131E32;
+  --bg-dark: #0A1128;
+  --bg-surface: #0F172A;
   --bg-surface-elevated: #1E293B;
-  --border-color: rgba(255, 255, 255, 0.1);
+  --border-color: rgba(56, 189, 248, 0.18);
   --font-heading: 'Outfit', sans-serif;
   --font-body: 'Inter', sans-serif;
 }

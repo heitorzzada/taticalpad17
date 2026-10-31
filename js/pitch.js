@@ -74,6 +74,16 @@ class PitchRenderer {
     }
   }
 
+  setFloorType(floorKey) {
+    if (["wood", "blue", "green", "concrete"].includes(floorKey)) {
+      this.floorType = floorKey;
+      if (typeof SCHOOL_CONFIG !== "undefined") {
+        SCHOOL_CONFIG.pitchPreset = floorKey;
+      }
+      this.render();
+    }
+  }
+
   /**
    * Atualiza as métricas de escala e posicionamento da quadra no canvas
    */
@@ -257,17 +267,32 @@ class PitchRenderer {
     const floorW = Math.abs(pBR.x - pTL.x);
     const floorH = Math.abs(pBR.y - pTL.y);
 
-    // 1. Piso da Quadra (Base Color / Fallback)
-    ctx.fillStyle = SCHOOL_CONFIG.pitchColor || "#C87B2E";
-    ctx.fillRect(floorX, floorY, floorW, floorH);
+    const currentFloorType = this.floorType || (typeof SCHOOL_CONFIG !== "undefined" ? SCHOOL_CONFIG.pitchPreset : null) || "wood";
 
-    // 2. Se for preset de Madeira ou textura carregada, renderiza foto real sem marcações
-    if (SCHOOL_CONFIG.pitchPreset === "wood" || this.woodLoaded) {
+    // 1. Renderização estrita do piso selecionado
+    if (currentFloorType === "wood") {
+      ctx.fillStyle = "#C87B2E";
+      ctx.fillRect(floorX, floorY, floorW, floorH);
       this.drawWoodTexture(floorX, floorY, floorW, floorH);
+    } else if (currentFloorType === "blue") {
+      // 2. Azul Amaporã (Piso Sintético Oficial)
+      ctx.fillStyle = "#0F3A6D";
+      ctx.fillRect(floorX, floorY, floorW, floorH);
+    } else if (currentFloorType === "green") {
+      // 3. Verde Salão Clássico
+      ctx.fillStyle = "#1B4D3E";
+      ctx.fillRect(floorX, floorY, floorW, floorH);
+    } else if (currentFloorType === "concrete") {
+      // 4. Cinza Concreto Polido
+      ctx.fillStyle = "#334155";
+      ctx.fillRect(floorX, floorY, floorW, floorH);
+    } else {
+      ctx.fillStyle = (typeof SCHOOL_CONFIG !== "undefined" && SCHOOL_CONFIG.pitchColor) || "#0F3A6D";
+      ctx.fillRect(floorX, floorY, floorW, floorH);
     }
 
-    // 3. Área de Gol / Garrafão (Cor diferenciada se configurada)
-    this.drawPenaltyAreasFloor();
+    // 2. Área de Gol / Garrafão (Cor diferenciada se configurada)
+    this.drawPenaltyAreasFloor(currentFloorType);
 
     // Borda exterior suave e sombra da quadra
     ctx.strokeStyle = "rgba(0, 0, 0, 0.4)";
@@ -343,37 +368,42 @@ class PitchRenderer {
   /**
    * Preenchimento da área de meta / garrafão com cor de contraste
    */
-  drawPenaltyAreasFloor() {
-    if (!SCHOOL_CONFIG.pitchAreaColor || SCHOOL_CONFIG.pitchAreaColor === SCHOOL_CONFIG.pitchColor) return;
-
+  drawPenaltyAreasFloor(currentFloorType) {
     const ctx = this.ctx;
+    let areaColor = null;
+
+    if (currentFloorType === "blue") {
+      areaColor = "#0077B6"; // Azul celeste oficial Amaporã
+    } else if (currentFloorType === "green") {
+      areaColor = "#133E31"; // Verde escuro salão
+    } else if (currentFloorType === "concrete") {
+      areaColor = "#1E293B"; // Grafite concreto
+    }
+
+    if (!areaColor) return;
+
     ctx.save();
-    if (SCHOOL_CONFIG.pitchPreset === "wood") {
-      ctx.globalAlpha = 0.35;
-    }
-    ctx.fillStyle = SCHOOL_CONFIG.pitchAreaColor;
+    ctx.fillStyle = areaColor;
 
-    // Área Esquerda (se não for modo half ou se for half esquerdo)
     if (this.viewMode !== "half") {
-      this.drawSinglePenaltyAreaFloor(0, 212.5, 287.5, 150, 1);
+      this.drawSinglePenaltyAreaFloor(0, 1);
     }
-
-    // Área Direita
-    this.drawSinglePenaltyAreaFloor(1000, 212.5, 287.5, 150, -1);
+    this.drawSinglePenaltyAreaFloor(1000, -1);
     ctx.restore();
   }
 
-  drawSinglePenaltyAreaFloor(goalLineX, post1Y, post2Y, radius, dir) {
+  drawSinglePenaltyAreaFloor(goalLineX, dir) {
     const ctx = this.ctx;
-    ctx.beginPath();
-    
-    // Início na linha de gol acima do poste superior
-    const p1 = this.courtToCanvas(goalLineX, post1Y - radius);
-    ctx.moveTo(p1.x, p1.y);
+    const post1Y = 212.5;
+    const post2Y = 287.5;
+    const radius = 150;
 
-    // Amostragem de arco suave convertida para canvas
-    const steps = 18;
-    // Arco do poste superior
+    const pStart = this.courtToCanvas(goalLineX, post1Y - radius);
+    ctx.beginPath();
+    ctx.moveTo(pStart.x, pStart.y);
+
+    const steps = 20;
+    // Arco superior
     for (let i = 0; i <= steps; i++) {
       const angle = (dir === 1) 
         ? -Math.PI / 2 + (i / steps) * (Math.PI / 2) 
@@ -384,10 +414,11 @@ class PitchRenderer {
       ctx.lineTo(pt.x, pt.y);
     }
 
+    // Linha frontal reta de 3m a 6m do gol
     const straightEnd = this.courtToCanvas(goalLineX + (dir === 1 ? radius : -radius), post2Y);
     ctx.lineTo(straightEnd.x, straightEnd.y);
 
-    // Arco do poste inferior
+    // Arco inferior
     for (let i = 0; i <= steps; i++) {
       const angle = (dir === 1) 
         ? (i / steps) * (Math.PI / 2) 
@@ -399,12 +430,8 @@ class PitchRenderer {
     }
 
     // Fecha na linha de gol
-    const pEnd = this.courtToCanvas(goalLineX, post2Y + radius);
-    ctx.lineTo(pEnd.x, pEnd.y);
-    const pBase = this.courtToCanvas(goalLineX, post1Y - radius);
-    ctx.lineTo(pBase.x, pBase.y);
+    ctx.lineTo(pStart.x, pStart.y);
     ctx.closePath();
-
     ctx.fill();
   }
 
@@ -422,7 +449,8 @@ class PitchRenderer {
     // 1. Logo Central
     if (SCHOOL_CONFIG.showCenterLogo) {
       ctx.save();
-      ctx.globalAlpha = SCHOOL_CONFIG.logoOpacity || 0.38;
+      const logoAlpha = SCHOOL_CONFIG.logoOpacity !== undefined ? SCHOOL_CONFIG.logoOpacity : 0.20;
+      ctx.globalAlpha = Math.min(0.25, logoAlpha);
 
       const centerCoord = (this.viewMode === "half")
         ? this.courtToCanvas(750, 250)

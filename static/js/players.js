@@ -518,7 +518,7 @@ class PlayerEntityManager {
 
       let jerseyColor, numberColor;
       if (p.team === "A") {
-        jerseyColor = p.isGk ? (cfg.teamAGkColor || "#10B981") : (cfg.teamAColor || "#004AAD");
+        jerseyColor = p.isGk ? (cfg.teamAGkColor || "#00A3E0") : (cfg.teamAColor || "#0047AB");
         numberColor = "#FFFFFF";
       } else {
         jerseyColor = p.isGk ? (cfg.teamBGkColor || "#F59E0B") : (cfg.teamBColor || "#DC2626");
@@ -566,8 +566,8 @@ class PlayerEntityManager {
       ctx.fillStyle = jerseyColor;
       ctx.fill();
 
-      ctx.strokeStyle = isSelected ? "#FFCC00" : (p.isGk ? "#FFFFFF" : "rgba(255, 255, 255, 0.85)");
-      ctx.lineWidth = isSelected ? Math.max(2.5, 3.5 * scale) : Math.max(1.5, 2.2 * scale);
+      ctx.strokeStyle = isSelected ? "#FFCC00" : "#FFFFFF";
+      ctx.lineWidth = isSelected ? Math.max(2.5, 3.5 * scale) : Math.max(2, 2.8 * scale);
       ctx.stroke();
 
       // 3. Número da Camisa

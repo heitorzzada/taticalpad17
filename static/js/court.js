@@ -22,6 +22,7 @@ class PitchRenderer {
 
     this.woodImage = null;
     this.woodLoaded = false;
+    this.floorType = window.SCHOOL_CONFIG?.pitchPreset || "wood";
     this.loadWoodTexture(window.SCHOOL_CONFIG?.woodFloorUrl || "/static/img/court/wood_floor.jpg");
 
     // Controle de Zoom & Pan Estilo Desktop App (TacticalPad)
@@ -78,6 +79,16 @@ class PitchRenderer {
     if (["horizontal", "vertical", "half"].includes(mode)) {
       this.viewMode = mode;
       this.resetZoomPan();
+    }
+  }
+
+  setFloorType(floorKey) {
+    if (["wood", "blue", "green", "concrete"].includes(floorKey)) {
+      this.floorType = floorKey;
+      if (window.SCHOOL_CONFIG) {
+        window.SCHOOL_CONFIG.pitchPreset = floorKey;
+      }
+      this.render();
     }
   }
 
@@ -241,7 +252,7 @@ class PitchRenderer {
   drawBackground() {
     const ctx = this.ctx;
     const { canvasWidth, canvasHeight } = this.metrics;
-    ctx.fillStyle = "#070D19";
+    ctx.fillStyle = "#0A1128"; // Fundo exterior escuro
     ctx.fillRect(0, 0, canvasWidth, canvasHeight);
   }
 
@@ -261,17 +272,32 @@ class PitchRenderer {
     const floorW = Math.abs(pBR.x - pTL.x);
     const floorH = Math.abs(pBR.y - pTL.y);
 
-    // 1. Piso da Quadra (Cor de fundo sólida de base/fallback)
-    ctx.fillStyle = cfg.pitchColor || "#C87B2E";
-    ctx.fillRect(floorX, floorY, floorW, floorH);
+    const currentFloorType = this.floorType || cfg.pitchPreset || "wood";
 
-    // 2. Textura Real de Madeira (se preset for "wood" ou imagem carregada)
-    if (cfg.pitchPreset === "wood" || this.woodLoaded) {
+    // 1. Renderização estrita do piso selecionado
+    if (currentFloorType === "wood") {
+      ctx.fillStyle = "#C87B2E";
+      ctx.fillRect(floorX, floorY, floorW, floorH);
       this.drawWoodTexture(floorX, floorY, floorW, floorH);
+    } else if (currentFloorType === "blue") {
+      // 2. Azul Amaporã (Piso Sintético Oficial)
+      ctx.fillStyle = "#0F3A6D";
+      ctx.fillRect(floorX, floorY, floorW, floorH);
+    } else if (currentFloorType === "green") {
+      // 3. Verde Salão Clássico
+      ctx.fillStyle = "#1B4D3E";
+      ctx.fillRect(floorX, floorY, floorW, floorH);
+    } else if (currentFloorType === "concrete") {
+      // 4. Cinza Concreto Polido
+      ctx.fillStyle = "#334155";
+      ctx.fillRect(floorX, floorY, floorW, floorH);
+    } else {
+      ctx.fillStyle = cfg.pitchColor || "#0F3A6D";
+      ctx.fillRect(floorX, floorY, floorW, floorH);
     }
 
-    // 3. Área de Gol / Garrafão (Cor de contraste se configurada)
-    this.drawPenaltyAreasFloor();
+    // 2. Área de Gol / Garrafão (Cor de contraste se configurada)
+    this.drawPenaltyAreasFloor(currentFloorType);
 
     // Contorno exterior
     ctx.strokeStyle = "rgba(0, 0, 0, 0.45)";
@@ -346,33 +372,42 @@ class PitchRenderer {
     ctx.restore();
   }
 
-  drawPenaltyAreasFloor() {
-    const cfg = window.SCHOOL_CONFIG || {};
-    if (!cfg.pitchAreaColor || cfg.pitchAreaColor === cfg.pitchColor) return;
-
+  drawPenaltyAreasFloor(currentFloorType) {
     const ctx = this.ctx;
-    ctx.save();
-    if (cfg.pitchPreset === "wood") {
-      ctx.globalAlpha = 0.35; // Mantém a textura de madeira visível sob a pintura da área
+    let areaColor = null;
+
+    if (currentFloorType === "blue") {
+      areaColor = "#0077B6"; // Azul celeste oficial Amaporã
+    } else if (currentFloorType === "green") {
+      areaColor = "#133E31"; // Verde escuro salão
+    } else if (currentFloorType === "concrete") {
+      areaColor = "#1E293B"; // Grafite concreto
     }
+
+    if (!areaColor) return;
+
+    ctx.save();
+    ctx.fillStyle = areaColor;
 
     if (this.viewMode !== "half") {
-      this.drawSinglePenaltyAreaFloor(0, 212.5, 287.5, 150, 1);
+      this.drawSinglePenaltyAreaFloor(0, 1);
     }
-    this.drawSinglePenaltyAreaFloor(1000, 212.5, 287.5, 150, -1);
+    this.drawSinglePenaltyAreaFloor(1000, -1);
     ctx.restore();
   }
 
-  drawSinglePenaltyAreaFloor(goalLineX, post1Y, post2Y, radius, dir) {
+  drawSinglePenaltyAreaFloor(goalLineX, dir) {
     const ctx = this.ctx;
-    const cfg = window.SCHOOL_CONFIG || {};
-    ctx.fillStyle = cfg.pitchAreaColor || "#142640";
-    ctx.beginPath();
-    
-    const p1 = this.courtToCanvas(goalLineX, post1Y - radius);
-    ctx.moveTo(p1.x, p1.y);
+    const post1Y = 212.5;
+    const post2Y = 287.5;
+    const radius = 150;
 
-    const steps = 18;
+    const pStart = this.courtToCanvas(goalLineX, post1Y - radius);
+    ctx.beginPath();
+    ctx.moveTo(pStart.x, pStart.y);
+
+    const steps = 20;
+    // Arco superior
     for (let i = 0; i <= steps; i++) {
       const angle = (dir === 1) 
         ? -Math.PI / 2 + (i / steps) * (Math.PI / 2) 
@@ -383,9 +418,11 @@ class PitchRenderer {
       ctx.lineTo(pt.x, pt.y);
     }
 
+    // Linha frontal reta de 3m a 6m do gol
     const straightEnd = this.courtToCanvas(goalLineX + (dir === 1 ? radius : -radius), post2Y);
     ctx.lineTo(straightEnd.x, straightEnd.y);
 
+    // Arco inferior
     for (let i = 0; i <= steps; i++) {
       const angle = (dir === 1) 
         ? (i / steps) * (Math.PI / 2) 
@@ -396,10 +433,8 @@ class PitchRenderer {
       ctx.lineTo(pt.x, pt.y);
     }
 
-    const pEnd = this.courtToCanvas(goalLineX, post2Y + radius);
-    ctx.lineTo(pEnd.x, pEnd.y);
-    const pBase = this.courtToCanvas(goalLineX, post1Y - radius);
-    ctx.lineTo(pBase.x, pBase.y);
+    // Fecha o polígono estritamente ao longo da linha de fundo
+    ctx.lineTo(pStart.x, pStart.y);
     ctx.closePath();
     ctx.fill();
   }
@@ -415,7 +450,8 @@ class PitchRenderer {
 
     if (cfg.showCenterLogo !== false) {
       ctx.save();
-      ctx.globalAlpha = cfg.logoOpacity || 0.38;
+      // Opacidade suave alpha = 0.20 conforme especificado para permitir visualizar bola e atletas
+      ctx.globalAlpha = 0.20;
 
       const centerCoord = (this.viewMode === "half")
         ? this.courtToCanvas(750, 250)

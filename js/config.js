@@ -51,31 +51,31 @@ const SCHOOL_CONFIG = {
   tagline: "Categoria de Base & Alto Rendimento | Desde 2025",
   
   // Cores da Interface e Identidade
-  primaryColor: "#0066CC",       // Azul Royal Amaporã
+  primaryColor: "#0047AB",       // Azul Royal Amaporã
   secondaryColor: "#38BDF8",     // Azul Celeste
   
   // Cores e Texturas da Quadra de Futsal Oficial
-  pitchPreset: "wood",           // "wood" | "blue" | "concrete" | "green" | "terracotta"
-  pitchColor: "#C87B2E",         // Piso da Quadra
-  pitchAreaColor: "#C87B2E",     // Área de Gol / Garrafão
+  pitchPreset: "wood",           // "wood" | "blue" | "green" | "concrete"
+  pitchColor: "#C87B2E",         // Piso da Quadra Base
+  pitchAreaColor: "#0077B6",     // Área de Gol / Garrafão
   courtLineColor: "#FFFFFF",     // Linhas demarcatórias oficiais
   woodFloorUrl: "img/court/wood_floor.jpg", // Textura fotorrealista de madeira sem marcações
   
   // Logo da Equipe na Quadra
   logoUrl: "img/logos/amapora_sub17.png",
-  logoOpacity: 0.65,             // Opacidade no centro da quadra (0.05 a 0.8)
+  logoOpacity: 0.20,             // Opacidade no centro da quadra (0.20 suave)
   showCenterLogo: true,
-  showCornerLogos: true,
+  showCornerLogos: false,
   
   // Uniformes das Equipes na Prancheta
-  teamAName: "Amaporã Futsal",
-  teamBName: "Adversário / Colete",
-  teamAColor: "#004AAD",         // Camisa Time A
+  teamAName: "Amaporã Futsal Sub-17",
+  teamBName: "Adversário",
+  teamAColor: "#0047AB",         // Azul Royal Principal
   teamATextColor: "#FFFFFF",     // Número Time A
-  teamBColor: "#DC2626",         // Camisa Time B (Vermelho)
+  teamBColor: "#DC2626",         // Vermelho Adversário
   teamBTextColor: "#FFFFFF",     // Número Time B
-  teamAGkColor: "#10B981",       // Goleiro Time A (Verde Esmeralda)
-  teamBGkColor: "#F59E0B",       // Goleiro Time B (Laranja / Amarelo)
+  teamAGkColor: "#00A3E0",       // Colete Goleiro Amaporã (Ciano Celeste)
+  teamBGkColor: "#F59E0B",       // Goleiro Time B (Amarelo Ouro)
 
   // Treinador padrão para exportação
   defaultCoach: "Prof. Fawller Augusti"
@@ -83,34 +83,28 @@ const SCHOOL_CONFIG = {
 
 // Presets visuais de pisos de quadra de Futsal
 const PITCH_PRESETS = {
-  blue: {
-    name: "Azul Oficial (Piso Sintético/Tarasflex)",
-    pitchColor: "#1E3A5F",
-    pitchAreaColor: "#142640",
+  wood: {
+    name: "Madeira / Taco (Parquet)",
+    pitchColor: "#C87B2E",
+    pitchAreaColor: "#C87B2E",
     courtLineColor: "#FFFFFF"
   },
-  wood: {
-    name: "Madeira Nobre (Parquet / Taboão)",
-    pitchColor: "#BA7A3B",
-    pitchAreaColor: "#9E642B",
+  blue: {
+    name: "Azul Amaporã (Piso Sintético Oficial)",
+    pitchColor: "#0F3A6D",
+    pitchAreaColor: "#0077B6",
+    courtLineColor: "#FFFFFF"
+  },
+  green: {
+    name: "Verde Salão Clássico",
+    pitchColor: "#1B4D3E",
+    pitchAreaColor: "#133E31",
     courtLineColor: "#FFFFFF"
   },
   concrete: {
-    name: "Cinza Moderno (Concreto Polido / Epóxi)",
+    name: "Cinza Concreto Polido",
     pitchColor: "#334155",
     pitchAreaColor: "#1E293B",
-    courtLineColor: "#FFCC00"
-  },
-  green: {
-    name: "Verde Tradicional (Resina Poliuretano)",
-    pitchColor: "#1B4D3E",
-    pitchAreaColor: "#12352A",
-    courtLineColor: "#FFFFFF"
-  },
-  terracotta: {
-    name: "Terracota / Laranja Futsal",
-    pitchColor: "#C25928",
-    pitchAreaColor: "#9A3E15",
     courtLineColor: "#FFFFFF"
   }
 };

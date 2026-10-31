@@ -20,12 +20,12 @@ class SchoolConfig(models.Model):
     # Cores Institucionais
     primary_color = models.CharField(
         max_length=30, 
-        default="#004AAD", 
+        default="#0047AB", 
         verbose_name="Cor Primária (Interface & Time A)"
     )
     secondary_color = models.CharField(
         max_length=30, 
-        default="#FFCC00", 
+        default="#38BDF8", 
         verbose_name="Cor Secundária (Destaques & Acentos)"
     )
     
@@ -36,10 +36,9 @@ class SchoolConfig(models.Model):
         verbose_name="Preset do Piso",
         choices=[
             ("wood", "Madeira Nobre (Parquet)"),
-            ("blue", "Azul Oficial (Tarasflex)"),
+            ("blue", "Azul Amaporã (Piso Sintético Oficial)"),
+            ("green", "Verde Salão Clássico"),
             ("concrete", "Cinza Concreto Polido"),
-            ("green", "Verde Tradicional"),
-            ("terracotta", "Terracota / Laranja"),
         ]
     )
     pitch_color = models.CharField(
@@ -71,7 +70,7 @@ class SchoolConfig(models.Model):
         verbose_name="Arquivo de Imagem da Logo"
     )
     logo_opacity = models.FloatField(
-        default=0.65, 
+        default=0.20, 
         verbose_name="Opacidade da Logo Central (0.0 a 1.0)"
     )
     show_center_logo = models.BooleanField(
@@ -96,28 +95,28 @@ class SchoolConfig(models.Model):
     )
     team_a_color = models.CharField(
         max_length=30, 
-        default="#004AAD", 
-        verbose_name="Camisa Time A"
+        default="#0047AB", 
+        verbose_name="Camisa Time A (Azul Royal)"
     )
     team_b_color = models.CharField(
         max_length=30, 
         default="#DC2626", 
-        verbose_name="Camisa Time B"
+        verbose_name="Camisa Time B (Vermelho)"
     )
     team_a_gk_color = models.CharField(
         max_length=30, 
-        default="#10B981", 
-        verbose_name="Goleiro Time A"
+        default="#00A3E0", 
+        verbose_name="Goleiro Time A (Ciano Celeste)"
     )
     team_b_gk_color = models.CharField(
         max_length=30, 
         default="#F59E0B", 
-        verbose_name="Goleiro Time B"
+        verbose_name="Goleiro Time B (Amarelo Ouro)"
     )
     
     default_coach = models.CharField(
         max_length=100, 
-        default="Prof. Lucas Silveira", 
+        default="Prof. Fawller Augusti", 
         verbose_name="Treinador Padrão"
     )
     is_active = models.BooleanField(
