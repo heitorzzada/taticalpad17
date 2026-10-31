@@ -31,6 +31,7 @@ class TacticalDrawings {
       "arrow_dashed",
       "arrow_wavy",
       "arrow_tbar",
+      "arrow_double",
       "zone_rect",
       "zone_ellipse",
       "player_line"
@@ -132,6 +133,9 @@ class TacticalDrawings {
         break;
       case "arrow_tbar":
         this.drawTBar(p1, p2);
+        break;
+      case "arrow_double":
+        this.drawDoubleArrow(p1, p2);
         break;
       case "player_line":
         ctx.setLineDash([4 * scale, 4 * scale]);
@@ -277,6 +281,48 @@ class TacticalDrawings {
     ctx.moveTo(p2.x - perpX, p2.y - perpY);
     ctx.lineTo(p2.x + perpX, p2.y + perpY);
     ctx.stroke();
+    ctx.restore();
+  }
+
+  drawDoubleArrow(p1, p2) {
+    const ctx = this.ctx;
+    const dx = p2.x - p1.x;
+    const dy = p2.y - p1.y;
+    const angle = Math.atan2(dy, dx);
+    const dist = Math.hypot(dx, dy);
+    const scale = this.pitch.metrics.scale;
+    const arrowHeadLen = Math.max(12, 16 * scale);
+
+    if (dist < arrowHeadLen * 1.8) return;
+
+    ctx.save();
+    ctx.beginPath();
+    const startLineX = p1.x + Math.cos(angle) * (arrowHeadLen * 0.7);
+    const startLineY = p1.y + Math.sin(angle) * (arrowHeadLen * 0.7);
+    const endLineX = p2.x - Math.cos(angle) * (arrowHeadLen * 0.7);
+    const endLineY = p2.y - Math.sin(angle) * (arrowHeadLen * 0.7);
+    ctx.moveTo(startLineX, startLineY);
+    ctx.lineTo(endLineX, endLineY);
+    ctx.stroke();
+
+    // Seta na ponta final
+    ctx.beginPath();
+    ctx.moveTo(p2.x, p2.y);
+    ctx.lineTo(p2.x - arrowHeadLen * Math.cos(angle - Math.PI / 6), p2.y - arrowHeadLen * Math.sin(angle - Math.PI / 6));
+    ctx.lineTo(p2.x - (arrowHeadLen * 0.6) * Math.cos(angle), p2.y - (arrowHeadLen * 0.6) * Math.sin(angle));
+    ctx.lineTo(p2.x - arrowHeadLen * Math.cos(angle + Math.PI / 6), p2.y - arrowHeadLen * Math.sin(angle + Math.PI / 6));
+    ctx.closePath();
+    ctx.fill();
+
+    // Seta na ponta inicial (oposta)
+    ctx.beginPath();
+    ctx.moveTo(p1.x, p1.y);
+    ctx.lineTo(p1.x + arrowHeadLen * Math.cos(angle - Math.PI / 6), p1.y + arrowHeadLen * Math.sin(angle - Math.PI / 6));
+    ctx.lineTo(p1.x + (arrowHeadLen * 0.6) * Math.cos(angle), p1.y + (arrowHeadLen * 0.6) * Math.sin(angle));
+    ctx.lineTo(p1.x + arrowHeadLen * Math.cos(angle + Math.PI / 6), p1.y + arrowHeadLen * Math.sin(angle + Math.PI / 6));
+    ctx.closePath();
+    ctx.fill();
+
     ctx.restore();
   }
 }

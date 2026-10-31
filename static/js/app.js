@@ -297,6 +297,7 @@ class TacticalBoardCore {
 class TacticalPadApp {
   constructor() {
     this.currentTab = "board";
+    this.currentBoardMode = "scheme"; // "scheme" (estático) | "animation" (dinâmico)
     this.drills = [];
     this.professors = [];
     this.activeDrillId = null;
@@ -340,7 +341,10 @@ class TacticalPadApp {
     // 5. Vincula Eventos da Interface
     this.bindUIEvents();
 
-    // 6. Atualização inicial de tela
+    // 6. Configura o modo inicial (Criar Esquema Estático)
+    this.setBoardMode("scheme");
+
+    // 7. Atualização inicial de tela
     window.addEventListener("resize", () => {
       this.board.pitch.updateMetrics();
       this.board.render();
@@ -352,6 +356,46 @@ class TacticalPadApp {
       this.updateTimelineUI();
       window.safeRenderIcons?.();
     }, 100);
+  }
+
+  setBoardMode(mode) {
+    this.currentBoardMode = mode;
+    const isScheme = mode === "scheme";
+    const btnScheme = document.getElementById("btn-mode-scheme");
+    const btnAnim = document.getElementById("btn-mode-animation");
+    const footer = document.getElementById("board-timeline-footer");
+    const primaryBtn = document.getElementById("btn-primary-action");
+
+    if (btnScheme && btnAnim) {
+      btnScheme.className = isScheme
+        ? "board-submode-btn px-3.5 py-1.5 rounded-lg text-xs flex items-center gap-1.5 transition-all bg-amber-400 text-slate-950 font-bold shadow-md shadow-amber-400/20"
+        : "board-submode-btn px-3.5 py-1.5 rounded-lg text-xs flex items-center gap-1.5 transition-all text-slate-300 hover:text-white font-medium";
+      btnAnim.className = !isScheme
+        ? "board-submode-btn px-3.5 py-1.5 rounded-lg text-xs flex items-center gap-1.5 transition-all bg-amber-400 text-slate-950 font-bold shadow-md shadow-amber-400/20"
+        : "board-submode-btn px-3.5 py-1.5 rounded-lg text-xs flex items-center gap-1.5 transition-all text-slate-300 hover:text-white font-medium";
+    }
+
+    if (footer) {
+      footer.classList.toggle("hidden", isScheme);
+    }
+
+    if (primaryBtn) {
+      if (isScheme) {
+        primaryBtn.innerHTML = `<i data-lucide="image" class="w-4 h-4"></i><span id="btn-primary-action-text">Exportar PNG</span>`;
+      } else {
+        primaryBtn.innerHTML = `<i data-lucide="film" class="w-4 h-4"></i><span id="btn-primary-action-text">Gravar Vídeo</span>`;
+      }
+    }
+
+    if (this.currentTab !== "board") {
+      this.switchTab("board");
+    }
+
+    setTimeout(() => {
+      this.board.pitch.updateMetrics();
+      this.board.render();
+      window.safeRenderIcons?.();
+    }, 60);
   }
 
   applyCSSVariables() {
@@ -370,6 +414,17 @@ class TacticalPadApp {
   }
 
   bindUIEvents() {
+    // 0. Modos de Operação Tactical Board (Criar Esquema vs Criar Animação)
+    document.getElementById("btn-mode-scheme")?.addEventListener("click", () => this.setBoardMode("scheme"));
+    document.getElementById("btn-mode-animation")?.addEventListener("click", () => this.setBoardMode("animation"));
+    document.getElementById("btn-primary-action")?.addEventListener("click", () => {
+      if (this.currentBoardMode === "animation") {
+        this.exportVideoWebM();
+      } else {
+        this.exportHighResPng();
+      }
+    });
+
     // 1. Navegação SPA
     document.querySelectorAll(".nav-tab-btn").forEach(btn => {
       btn.addEventListener("click", () => this.switchTab(btn.dataset.tab));
