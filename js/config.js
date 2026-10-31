@@ -77,7 +77,7 @@ const SCHOOL_CONFIG = {
   teamBGkColor: "#F59E0B",       // Goleiro Time B (Laranja / Amarelo)
 
   // Treinador padrão para exportação
-  defaultCoach: "Prof. Lucas Silveira"
+  defaultCoach: "Prof. Fawller Augusti"
 };
 
 // Presets visuais de pisos de quadra de Futsal
@@ -178,6 +178,20 @@ const ConfigManager = {
 const DEFAULT_COACHES = [
   {
     id: "coach-1",
+    name: "Prof. Fawller Augusti",
+    role: "Técnico Principal",
+    categories: ["Todas as Categorias", "Sub-7", "Sub-9", "Sub-11", "Sub-13", "Sub-15", "Sub-17", "Adulto"],
+    cref: "CREF 089412-G/SP",
+    licenses: "Licença A Treinador CBFS/FIFA | Especialista em Metodologia de Futsal",
+    experience: "Treinador Principal",
+    photoUrl: "static/img/professors/fawller_augusti.png",
+    bio: "Treinador principal com ampla liderança e atuação no desenvolvimento técnico, tático e disciplinar de atletas em todas as categorias da escolinha.",
+    philosophy: "'Disciplina tática, intensidade e paixão pelo jogo formam atletas vencedores.'",
+    email: "fawller.augusti@falcaofutsal.com.br",
+    phone: "(11) 98888-5522"
+  },
+  {
+    id: "coach-2",
     name: "Prof. Lucas 'Falcão' Silveira",
     role: "Coordenador Técnico & Treinador Principal",
     categories: ["Sub-15", "Sub-17", "Adulto"],
@@ -191,7 +205,7 @@ const DEFAULT_COACHES = [
     phone: "(11) 98765-4321"
   },
   {
-    id: "coach-2",
+    id: "coach-3",
     name: "Profª. Mariana Castro",
     role: "Treinadora de Base & Especialista em Iniciação",
     categories: ["Sub-7", "Sub-9", "Sub-11", "Sub-13"],
@@ -205,7 +219,7 @@ const DEFAULT_COACHES = [
     phone: "(11) 97654-3210"
   },
   {
-    id: "coach-3",
+    id: "coach-4",
     name: "Prof. Rodrigo 'Muralha' Rocha",
     role: "Preparador Específico de Goleiros & Análise de Desempenho",
     categories: ["Todas as Categorias", "Goleiros"],

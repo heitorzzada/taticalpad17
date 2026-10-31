@@ -75,7 +75,7 @@ class Command(BaseCommand):
                 "team_b_color": "#DC2626",
                 "team_a_gk_color": "#10B981",
                 "team_b_gk_color": "#F59E0B",
-                "default_coach": "Prof. Lucas Silveira"
+                "default_coach": "Prof. Fawller Augusti"
             }
         )
         if not created and not config.logo_url:
@@ -86,8 +86,23 @@ class Command(BaseCommand):
     def seed_professors(self):
         coaches_data = [
             {
+                "name": "Prof. Fawller Augusti",
+                "role": "Técnico Principal",
+                "categories": "Todas as Categorias, Sub-7, Sub-9, Sub-11, Sub-13, Sub-15, Sub-17, Adulto",
+                "cref": "CREF 089412-G/SP",
+                "licenses": "Licença A Treinador CBFS/FIFA | Especialista em Metodologia de Futsal",
+                "experience": "Treinador Principal",
+                "photo_url": "/static/img/professors/fawller_augusti.png",
+                "photo_image": "professors/fawller_augusti.png",
+                "bio": "Treinador principal com ampla liderança e atuação no desenvolvimento técnico, tático e disciplinar de atletas em todas as categorias da escolinha.",
+                "philosophy": "Disciplina tática, intensidade e paixão pelo jogo formam atletas vencedores.",
+                "email": "fawller.augusti@falcaofutsal.com.br",
+                "phone": "(11) 98888-5522",
+                "display_order": 1
+            },
+            {
                 "name": "Prof. Lucas 'Falcão' Silveira",
-                "role": "Coordenador Técnico & Treinador Principal",
+                "role": "Coordenador Técnico & Treinador Adjunto",
                 "categories": "Sub-15, Sub-17, Adulto",
                 "cref": "CREF 034891-G/SP",
                 "licenses": "Licença PRO Futsal CBFS | Pós em Fisiologia do Exercício",
@@ -97,7 +112,7 @@ class Command(BaseCommand):
                 "philosophy": "'O futsal moderno exige atletas cognitivos que enxergam o espaço antes da bola chegar.'",
                 "email": "lucas.silveira@falcaofutsal.com.br",
                 "phone": "(11) 98765-4321",
-                "display_order": 1
+                "display_order": 2
             },
             {
                 "name": "Profª. Mariana Castro",
@@ -111,7 +126,7 @@ class Command(BaseCommand):
                 "philosophy": "'Na base, a técnica não é fim, é instrumento para a criança expressar sua criatividade e alegria de jogar.'",
                 "email": "mariana.castro@falcaofutsal.com.br",
                 "phone": "(11) 97654-3210",
-                "display_order": 2
+                "display_order": 3
             },
             {
                 "name": "Prof. Rodrigo 'Muralha' Rocha",
@@ -125,7 +140,7 @@ class Command(BaseCommand):
                 "philosophy": "'O goleiro de futsal é o primeiro armador do time e o último guardião da meta.'",
                 "email": "rodrigo.muralha@falcaofutsal.com.br",
                 "phone": "(11) 96543-2109",
-                "display_order": 3
+                "display_order": 4
             }
         ]
 
