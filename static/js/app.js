@@ -38,16 +38,9 @@ class TacticalBoardCore {
     window.addEventListener("pointerup", this.handlePointerUp.bind(this));
     window.addEventListener("pointercancel", this.handlePointerUp.bind(this));
 
-    // Zoom com a roda do mouse centrado no cursor
+    // Previne que a rolagem do mouse aumente/diminua o tamanho da quadra ou role a página
     this.canvas.addEventListener("wheel", (e) => {
       e.preventDefault();
-      const rect = this.canvas.getBoundingClientRect();
-      const screenX = e.clientX - rect.left;
-      const screenY = e.clientY - rect.top;
-      const factor = e.deltaY < 0 ? 1.15 : 0.87;
-      this.pitch.setZoom(this.pitch.zoom * factor, screenX, screenY);
-      this.render();
-      this.onZoomChange?.(this.pitch.zoom);
     }, { passive: false });
 
     // Previne menu de contexto padrão com botão direito para permitir pan fluido
@@ -549,38 +542,8 @@ class TacticalPadApp {
       });
     });
 
-    // 11. HUD de Zoom & Pan da Quadra
-    document.getElementById("btn-zoom-in")?.addEventListener("click", () => {
-      this.board.pitch.zoomIn();
-      this.board.render();
-      this.updateZoomLevelText();
-    });
-    document.getElementById("btn-zoom-out")?.addEventListener("click", () => {
-      this.board.pitch.zoomOut();
-      this.board.render();
-      this.updateZoomLevelText();
-    });
-    document.getElementById("btn-zoom-reset")?.addEventListener("click", () => {
-      this.board.pitch.resetZoomPan();
-      this.board.render();
-      this.updateZoomLevelText();
-    });
-    document.getElementById("btn-fit-screen")?.addEventListener("click", () => {
-      this.board.pitch.resetZoomPan();
-      this.board.render();
-      this.updateZoomLevelText();
-    });
-    document.getElementById("btn-toggle-pan")?.addEventListener("click", (e) => {
-      this.board.isPanModeActive = !this.board.isPanModeActive;
-      e.currentTarget.classList.toggle("bg-amber-400", this.board.isPanModeActive);
-      e.currentTarget.classList.toggle("text-slate-950", this.board.isPanModeActive);
-      e.currentTarget.classList.toggle("font-bold", this.board.isPanModeActive);
-      this.board.canvas.classList.toggle("cursor-grab", this.board.isPanModeActive);
-      if (!this.board.isPanModeActive) {
-        this.board.canvas.classList.remove("cursor-grab");
-      }
-    });
-    this.board.onZoomChange = (z) => this.updateZoomLevelText(z);
+    // 11. Controle Fixo da Quadra (Zoom travado em 100% oficial)
+    this.board.pitch.resetZoomPan();
 
     // 12. Seletor Rápido de Temas do Piso da Quadra
     document.querySelectorAll(".theme-preset-btn").forEach(btn => {

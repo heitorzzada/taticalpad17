@@ -320,18 +320,21 @@ class PitchRenderer {
       const angle = (dir === 1) 
         ? -Math.PI / 2 + (i / steps) * (Math.PI / 2) 
         : -Math.PI / 2 - (i / steps) * (Math.PI / 2);
-      const vx = goalLineX + Math.cos(angle) * radius * dir;
+      const vx = goalLineX + Math.cos(angle) * radius;
       const vy = post1Y + Math.sin(angle) * radius;
       const pt = this.courtToCanvas(vx, vy);
       ctx.lineTo(pt.x, pt.y);
     }
+
+    const straightEnd = this.courtToCanvas(goalLineX + (dir === 1 ? radius : -radius), post2Y);
+    ctx.lineTo(straightEnd.x, straightEnd.y);
 
     // Arco do poste inferior
     for (let i = 0; i <= steps; i++) {
       const angle = (dir === 1) 
         ? (i / steps) * (Math.PI / 2) 
         : Math.PI - (i / steps) * (Math.PI / 2);
-      const vx = goalLineX + Math.cos(angle) * radius * dir;
+      const vx = goalLineX + Math.cos(angle) * radius;
       const vy = post2Y + Math.sin(angle) * radius;
       const pt = this.courtToCanvas(vx, vy);
       ctx.lineTo(pt.x, pt.y);
@@ -342,6 +345,7 @@ class PitchRenderer {
     ctx.lineTo(pEnd.x, pEnd.y);
     const pBase = this.courtToCanvas(goalLineX, post1Y - radius);
     ctx.lineTo(pBase.x, pBase.y);
+    ctx.closePath();
 
     ctx.fill();
   }
@@ -493,7 +497,7 @@ class PitchRenderer {
       const angle = (dir === 1) 
         ? -Math.PI / 2 + (i / steps) * (Math.PI / 2) 
         : -Math.PI / 2 - (i / steps) * (Math.PI / 2);
-      const vx = goalLineX + Math.cos(angle) * radius * dir;
+      const vx = goalLineX + Math.cos(angle) * radius;
       const vy = post1Y + Math.sin(angle) * radius;
       const pt = this.courtToCanvas(vx, vy);
       if (i === 0) ctx.moveTo(pt.x, pt.y);
@@ -501,7 +505,7 @@ class PitchRenderer {
     }
 
     // Linha reta de 3.16m conectando os arcos
-    const straightEnd = this.courtToCanvas(goalLineX + radius * dir, post2Y);
+    const straightEnd = this.courtToCanvas(goalLineX + (dir === 1 ? radius : -radius), post2Y);
     ctx.lineTo(straightEnd.x, straightEnd.y);
 
     // Arco 2
@@ -509,7 +513,7 @@ class PitchRenderer {
       const angle = (dir === 1) 
         ? (i / steps) * (Math.PI / 2) 
         : Math.PI - (i / steps) * (Math.PI / 2);
-      const vx = goalLineX + Math.cos(angle) * radius * dir;
+      const vx = goalLineX + Math.cos(angle) * radius;
       const vy = post2Y + Math.sin(angle) * radius;
       const pt = this.courtToCanvas(vx, vy);
       ctx.lineTo(pt.x, pt.y);
@@ -517,7 +521,7 @@ class PitchRenderer {
     ctx.stroke();
 
     // Ponto Penal dos 6 metros
-    const penX = goalLineX + radius * dir;
+    const penX = goalLineX + (dir === 1 ? radius : -radius);
     this.drawCourtDot(penX, 250, 4);
 
     // Marca de 5 metros para a barreira em escanteios (linha de 40cm a 5m do escanteio)
