@@ -988,21 +988,153 @@ class TacticalBoard {
       }
 
       switch (eq.type) {
-        case "cone": { // Cone alto
-          const r = Math.max(9, 13 * scale);
-          // Base
-          ctx.fillStyle = eq.color || "#F97316";
+        case "cone": { // Cone esportivo alto 3D
+          const coneH = Math.max(26, 34 * scale);
+          const baseW = Math.max(20, 26 * scale);
+          const baseH = Math.max(6, 8.5 * scale);
+          const topW = Math.max(4.5, 6 * scale);
+          const yBase = coneH * 0.35;
+          const yTop = yBase - coneH;
+          const coneColor = eq.color || "#F97316";
+
+          // 1. Sombra projetada no piso da quadra (Drop Shadow)
+          ctx.fillStyle = "rgba(0, 0, 0, 0.32)";
           ctx.beginPath();
-          ctx.arc(0, 0, r, 0, Math.PI * 2);
+          if (ctx.ellipse) {
+            ctx.ellipse(0, yBase + 1.5 * scale, baseW * 0.62, baseH * 0.6, 0, 0, Math.PI * 2);
+          } else {
+            ctx.arc(0, yBase + 1.5 * scale, baseW * 0.5, 0, Math.PI * 2);
+          }
           ctx.fill();
-          ctx.strokeStyle = "#FFFFFF";
-          ctx.lineWidth = 1.5;
-          ctx.stroke();
-          // Topo circular concêntrico
+
+          // 2. Base Quadrada/Chanfrada de apoio (Base plate)
+          ctx.fillStyle = coneColor;
+          ctx.beginPath();
+          if (ctx.roundRect) {
+            ctx.roundRect(-baseW / 2, yBase - baseH, baseW, baseH, 2.5 * scale);
+          } else {
+            ctx.rect(-baseW / 2, yBase - baseH, baseW, baseH);
+          }
+          ctx.fill();
+
+          // Sombra 3D na borda inferior da base
+          const baseShade = ctx.createLinearGradient(0, yBase - baseH, 0, yBase);
+          baseShade.addColorStop(0, "rgba(255, 255, 255, 0.2)");
+          baseShade.addColorStop(0.5, "rgba(0, 0, 0, 0)");
+          baseShade.addColorStop(1, "rgba(0, 0, 0, 0.35)");
+          ctx.fillStyle = baseShade;
+          ctx.beginPath();
+          if (ctx.roundRect) {
+            ctx.roundRect(-baseW / 2, yBase - baseH, baseW, baseH, 2.5 * scale);
+          } else {
+            ctx.rect(-baseW / 2, yBase - baseH, baseW, baseH);
+          }
+          ctx.fill();
+
+          ctx.strokeStyle = "rgba(0, 0, 0, 0.35)";
+          ctx.lineWidth = 1;
+          if (ctx.roundRect) {
+            ctx.roundRect(-baseW / 2, yBase - baseH, baseW, baseH, 2.5 * scale);
+            ctx.stroke();
+          } else {
+            ctx.strokeRect(-baseW / 2, yBase - baseH, baseW, baseH);
+          }
+
+          // 3. Corpo Cônico Triangular (Tapered Cone Body)
+          const bLeft = -baseW * 0.36;
+          const bRight = baseW * 0.36;
+          const bY = yBase - baseH * 0.65;
+          const tLeft = -topW * 0.5;
+          const tRight = topW * 0.5;
+
+          ctx.fillStyle = coneColor;
+          ctx.beginPath();
+          ctx.moveTo(bLeft, bY);
+          ctx.lineTo(tLeft, yTop);
+          ctx.quadraticCurveTo(0, yTop - 1.5 * scale, tRight, yTop);
+          ctx.lineTo(bRight, bY);
+          ctx.quadraticCurveTo(0, bY + 3 * scale, bLeft, bY);
+          ctx.closePath();
+          ctx.fill();
+
+          // 4. Faixa Branca Refletiva Central (Reflective Stripe)
+          const fTopRatio = 0.34;
+          const fBotRatio = 0.62;
+
+          const sTopY = yTop + (bY - yTop) * fTopRatio;
+          const sBotY = yTop + (bY - yTop) * fBotRatio;
+
+          const sTopL = tLeft + (bLeft - tLeft) * fTopRatio;
+          const sTopR = tRight + (bRight - tRight) * fTopRatio;
+          const sBotL = tLeft + (bLeft - tLeft) * fBotRatio;
+          const sBotR = tRight + (bRight - tRight) * fBotRatio;
+
           ctx.fillStyle = "#FFFFFF";
           ctx.beginPath();
-          ctx.arc(0, 0, r * 0.45, 0, Math.PI * 2);
+          ctx.moveTo(sTopL, sTopY);
+          ctx.quadraticCurveTo(0, sTopY + 1.2 * scale, sTopR, sTopY);
+          ctx.lineTo(sBotR, sBotY);
+          ctx.quadraticCurveTo(0, sBotY + 2 * scale, sBotL, sBotY);
+          ctx.closePath();
           ctx.fill();
+
+          ctx.strokeStyle = "rgba(0, 0, 0, 0.15)";
+          ctx.lineWidth = 0.8;
+          ctx.stroke();
+
+          // 5. Iluminação e Volume Tridimensional (3D Lighting Overlay)
+          const lightGrad = ctx.createLinearGradient(-baseW / 2, 0, baseW / 2, 0);
+          lightGrad.addColorStop(0, "rgba(255, 255, 255, 0.32)");
+          lightGrad.addColorStop(0.3, "rgba(255, 255, 255, 0.1)");
+          lightGrad.addColorStop(0.65, "rgba(0, 0, 0, 0)");
+          lightGrad.addColorStop(1, "rgba(0, 0, 0, 0.35)");
+
+          ctx.fillStyle = lightGrad;
+          ctx.beginPath();
+          ctx.moveTo(bLeft, bY);
+          ctx.lineTo(tLeft, yTop);
+          ctx.quadraticCurveTo(0, yTop - 1.5 * scale, tRight, yTop);
+          ctx.lineTo(bRight, bY);
+          ctx.quadraticCurveTo(0, bY + 3 * scale, bLeft, bY);
+          ctx.closePath();
+          ctx.fill();
+
+          // 6. Contorno externo sutil do cone
+          ctx.strokeStyle = "rgba(0, 0, 0, 0.35)";
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(bLeft, bY);
+          ctx.lineTo(tLeft, yTop);
+          ctx.quadraticCurveTo(0, yTop - 1.5 * scale, tRight, yTop);
+          ctx.lineTo(bRight, bY);
+          ctx.quadraticCurveTo(0, bY + 3 * scale, bLeft, bY);
+          ctx.closePath();
+          ctx.stroke();
+
+          // 7. Orifício / Abertura Superior do Cone
+          ctx.fillStyle = "#451A03";
+          ctx.beginPath();
+          if (ctx.ellipse) {
+            ctx.ellipse(0, yTop, topW * 0.42, 1.2 * scale, 0, 0, Math.PI * 2);
+          } else {
+            ctx.arc(0, yTop, topW * 0.3, 0, Math.PI * 2);
+          }
+          ctx.fill();
+
+          // 8. Borda de seleção quando selecionado
+          if (isSelected) {
+            ctx.strokeStyle = "#FFCC00";
+            ctx.lineWidth = 2;
+            ctx.setLineDash([3 * scale, 3 * scale]);
+            ctx.beginPath();
+            if (ctx.ellipse) {
+              ctx.ellipse(0, yBase - baseH / 2, baseW * 0.65, baseH * 0.85, 0, 0, Math.PI * 2);
+            } else {
+              ctx.arc(0, yBase - baseH / 2, baseW * 0.6, 0, Math.PI * 2);
+            }
+            ctx.stroke();
+            ctx.setLineDash([]);
+          }
           break;
         }
 
