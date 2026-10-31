@@ -415,22 +415,33 @@ class PitchRenderer {
     if (!this.logoLoaded || !this.logoImage) return;
     const ctx = this.ctx;
 
+    const imgW = this.logoImage.naturalWidth || this.logoImage.width || 1;
+    const imgH = this.logoImage.naturalHeight || this.logoImage.height || 1;
+    const aspect = imgW / imgH;
+
     // 1. Logo Central
     if (SCHOOL_CONFIG.showCenterLogo) {
       ctx.save();
-      ctx.globalAlpha = SCHOOL_CONFIG.logoOpacity || 0.25;
+      ctx.globalAlpha = SCHOOL_CONFIG.logoOpacity || 0.38;
 
       const centerCoord = (this.viewMode === "half")
         ? this.courtToCanvas(750, 250)
         : this.courtToCanvas(500, 250);
 
-      const logoSize = 180 * this.metrics.scale;
+      let targetH = 185 * this.metrics.scale;
+      let targetW = targetH * aspect;
+
+      ctx.translate(centerCoord.x, centerCoord.y);
+      if (this.viewMode === "vertical") {
+        ctx.rotate(Math.PI / 2);
+      }
+
       ctx.drawImage(
         this.logoImage,
-        centerCoord.x - logoSize / 2,
-        centerCoord.y - logoSize / 2,
-        logoSize,
-        logoSize
+        -targetW / 2,
+        -targetH / 2,
+        targetW,
+        targetH
       );
       ctx.restore();
     }
@@ -438,8 +449,9 @@ class PitchRenderer {
     // 2. Logos nos Cantos (Opcional)
     if (SCHOOL_CONFIG.showCornerLogos && this.viewMode === "horizontal") {
       ctx.save();
-      ctx.globalAlpha = 0.15;
-      const cornerSize = 70 * this.metrics.scale;
+      ctx.globalAlpha = (SCHOOL_CONFIG.logoOpacity || 0.38) * 0.45;
+      const cornerH = 70 * this.metrics.scale;
+      const cornerW = cornerH * aspect;
 
       const corners = [
         this.courtToCanvas(70, 70),
@@ -451,10 +463,10 @@ class PitchRenderer {
       corners.forEach(pt => {
         ctx.drawImage(
           this.logoImage,
-          pt.x - cornerSize / 2,
-          pt.y - cornerSize / 2,
-          cornerSize,
-          cornerSize
+          pt.x - cornerW / 2,
+          pt.y - cornerH / 2,
+          cornerW,
+          cornerH
         );
       });
       ctx.restore();

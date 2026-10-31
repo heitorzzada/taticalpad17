@@ -409,29 +409,42 @@ class PitchRenderer {
     const ctx = this.ctx;
     const cfg = window.SCHOOL_CONFIG || {};
 
+    const imgW = this.logoImage.naturalWidth || this.logoImage.width || 1;
+    const imgH = this.logoImage.naturalHeight || this.logoImage.height || 1;
+    const aspect = imgW / imgH;
+
     if (cfg.showCenterLogo !== false) {
       ctx.save();
-      ctx.globalAlpha = cfg.logoOpacity || 0.28;
+      ctx.globalAlpha = cfg.logoOpacity || 0.38;
 
       const centerCoord = (this.viewMode === "half")
         ? this.courtToCanvas(750, 250)
         : this.courtToCanvas(500, 250);
 
-      const logoSize = 180 * this.metrics.scale;
+      // Proporções ideais para caber perfeitamente harmonioso no círculo central
+      let targetH = 185 * this.metrics.scale;
+      let targetW = targetH * aspect;
+
+      ctx.translate(centerCoord.x, centerCoord.y);
+      if (this.viewMode === "vertical") {
+        ctx.rotate(Math.PI / 2);
+      }
+
       ctx.drawImage(
         this.logoImage,
-        centerCoord.x - logoSize / 2,
-        centerCoord.y - logoSize / 2,
-        logoSize,
-        logoSize
+        -targetW / 2,
+        -targetH / 2,
+        targetW,
+        targetH
       );
       ctx.restore();
     }
 
     if (cfg.showCornerLogos && this.viewMode === "horizontal") {
       ctx.save();
-      ctx.globalAlpha = 0.16;
-      const cornerSize = 70 * this.metrics.scale;
+      ctx.globalAlpha = (cfg.logoOpacity || 0.38) * 0.45;
+      const cornerH = 70 * this.metrics.scale;
+      const cornerW = cornerH * aspect;
 
       const corners = [
         this.courtToCanvas(70, 70),
@@ -443,10 +456,10 @@ class PitchRenderer {
       corners.forEach(pt => {
         ctx.drawImage(
           this.logoImage,
-          pt.x - cornerSize / 2,
-          pt.y - cornerSize / 2,
-          cornerSize,
-          cornerSize
+          pt.x - cornerW / 2,
+          pt.y - cornerH / 2,
+          cornerW,
+          cornerH
         );
       });
       ctx.restore();

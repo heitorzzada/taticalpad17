@@ -47,12 +47,12 @@ const DEFAULT_FUTSAL_CREST_SVG = `data:image/svg+xml;utf8,<svg xmlns="http://www
 // Configuração Centralizada da Escolinha (Editável)
 const SCHOOL_CONFIG = {
   // Identidade Institucional
-  schoolName: "Falcão 12 Futsal Academy",
-  tagline: "Centro de Formação Tática & Alto Rendimento",
+  schoolName: "Amaporã Futsal Sub-17",
+  tagline: "Categoria de Base & Alto Rendimento | Desde 2025",
   
   // Cores da Interface e Identidade
-  primaryColor: "#004AAD",       // Azul Royal (Time Principal e Destaques da UI)
-  secondaryColor: "#FFCC00",     // Amarelo Ouro (Acentos, Realces e Botões Ativos)
+  primaryColor: "#0066CC",       // Azul Royal Amaporã
+  secondaryColor: "#38BDF8",     // Azul Celeste
   
   // Cores e Texturas da Quadra de Futsal Oficial
   pitchPreset: "wood",           // "wood" | "blue" | "concrete" | "green" | "terracotta"
@@ -62,13 +62,13 @@ const SCHOOL_CONFIG = {
   woodFloorUrl: "img/court/wood_floor.jpg", // Textura fotorrealista de madeira sem marcações
   
   // Logo da Equipe na Quadra
-  logoUrl: DEFAULT_FUTSAL_CREST_SVG,
-  logoOpacity: 0.28,             // Opacidade no centro da quadra (0.05 a 0.8)
+  logoUrl: "img/logos/amapora_sub17.png",
+  logoOpacity: 0.65,             // Opacidade no centro da quadra (0.05 a 0.8)
   showCenterLogo: true,
   showCornerLogos: true,
   
   // Uniformes das Equipes na Prancheta
-  teamAName: "Escolinha Falcão",
+  teamAName: "Amaporã Futsal",
   teamBName: "Adversário / Colete",
   teamAColor: "#004AAD",         // Camisa Time A
   teamATextColor: "#FFFFFF",     // Número Time A

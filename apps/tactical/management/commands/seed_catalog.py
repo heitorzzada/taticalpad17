@@ -57,21 +57,21 @@ class Command(BaseCommand):
         config, created = SchoolConfig.objects.get_or_create(
             is_active=True,
             defaults={
-                "school_name": "Falcão 12 Futsal Academy",
-                "tagline": "Centro de Formação Tática & Alto Rendimento",
-                "primary_color": "#004AAD",
-                "secondary_color": "#FFCC00",
-                "pitch_preset": "blue",
-                "pitch_color": "#1E3A5F",
-                "pitch_area_color": "#142640",
+                "school_name": "Amaporã Futsal Sub-17",
+                "tagline": "Categoria de Base & Alto Rendimento | Desde 2025",
+                "primary_color": "#0066CC",
+                "secondary_color": "#38BDF8",
+                "pitch_preset": "wood",
+                "pitch_color": "#C87B2E",
+                "pitch_area_color": "#C87B2E",
                 "court_line_color": "#FFFFFF",
-                "logo_url": DEFAULT_CREST_SVG,
-                "logo_opacity": 0.28,
+                "logo_url": "/static/img/logos/amapora_sub17.png",
+                "logo_opacity": 0.65,
                 "show_center_logo": True,
                 "show_corner_logos": True,
-                "team_a_name": "Escolinha Falcão",
+                "team_a_name": "Amaporã Futsal",
                 "team_b_name": "Adversário",
-                "team_a_color": "#004AAD",
+                "team_a_color": "#0066CC",
                 "team_b_color": "#DC2626",
                 "team_a_gk_color": "#10B981",
                 "team_b_gk_color": "#F59E0B",
@@ -79,7 +79,7 @@ class Command(BaseCommand):
             }
         )
         if not created and not config.logo_url:
-            config.logo_url = DEFAULT_CREST_SVG
+            config.logo_url = "/static/img/logos/amapora_sub17.png"
             config.save()
         self.stdout.write(self.style.SUCCESS(f"  [OK] Configuração da Escolinha: '{config.school_name}'"))
 

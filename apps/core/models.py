@@ -8,12 +8,12 @@ class SchoolConfig(models.Model):
     """
     school_name = models.CharField(
         max_length=150, 
-        default="Falcão 12 Futsal Academy", 
+        default="Amaporã Futsal Sub-17", 
         verbose_name="Nome da Escolinha/Equipe"
     )
     tagline = models.CharField(
         max_length=250, 
-        default="Centro de Formação Tática & Alto Rendimento", 
+        default="Categoria de Base & Alto Rendimento | Desde 2025", 
         verbose_name="Slogan / Subtítulo"
     )
     
@@ -60,6 +60,7 @@ class SchoolConfig(models.Model):
     
     # Logo e Visualização
     logo_url = models.TextField(
+        default="/static/img/logos/amapora_sub17.png",
         blank=True, 
         verbose_name="URL ou SVG da Logo"
     )
@@ -70,7 +71,7 @@ class SchoolConfig(models.Model):
         verbose_name="Arquivo de Imagem da Logo"
     )
     logo_opacity = models.FloatField(
-        default=0.28, 
+        default=0.65, 
         verbose_name="Opacidade da Logo Central (0.0 a 1.0)"
     )
     show_center_logo = models.BooleanField(
@@ -85,7 +86,7 @@ class SchoolConfig(models.Model):
     # Uniformes das Equipes
     team_a_name = models.CharField(
         max_length=100, 
-        default="Escolinha Falcão", 
+        default="Amaporã Futsal", 
         verbose_name="Nome do Time Principal"
     )
     team_b_name = models.CharField(
