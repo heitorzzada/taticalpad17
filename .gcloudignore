@@ -1,0 +1,13 @@
+.gcloudignore
+.git
+.gitignore
+.env
+__pycache__/
+*.pyc
+venv/
+.venv/
+db.sqlite3
+media/
+staticfiles/
+.system_generated/
+scratch/

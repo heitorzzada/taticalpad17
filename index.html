@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>TacticalPad Futsal Pro - Sistema de Inteligência Tática e Treinos</title>
+  <meta name="description" content="Software profissional de análise de desempenho e prancheta tática para escolinhas e equipes de futsal. Desenho de treinos, animações quadro a quadro e gestão de comissão técnica." />
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              blue: '#004AAD',
+              gold: '#FFCC00',
+              pitch: '#1E3A5F',
+              dark: '#0B1120',
+              surface: '#131E32',
+              elevated: '#1E293B'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    window.safeRenderIcons = function() {
+      try {
+        if (typeof lucide !== 'undefined' && lucide.createIcons) {
+          lucide.createIcons();
+        }
+      } catch (err) {
+        console.warn("Lucide icons:", err);
+      }
+    };
+  </script>
+
+  <!-- Google Fonts: Outfit (Títulos) & Inter (Interface) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Estilos Customizados -->
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+
+<body class="bg-slate-950 text-slate-100 h-screen w-screen overflow-hidden flex flex-col font-sans select-none">
+
+  <!-- =========================================================================
+       1. CABEÇALHO GLOBAL DE NAVEGAÇÃO (TOP NAVBAR)
+       ========================================================================= -->
+  <header class="h-14 bg-slate-900/90 border-b border-slate-800/80 px-4 flex items-center justify-between shrink-0 z-40 backdrop-blur-md">
+    
+    <!-- Identidade e Logo da Escolinha -->
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-xl bg-slate-800 border border-amber-400/30 flex items-center justify-center overflow-hidden shadow-lg shadow-amber-400/10">
+        <img src="" alt="Logo" class="app-school-logo w-full h-full object-contain p-1" />
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="text-sm font-extrabold text-white tracking-wide font-heading app-school-name">
+            Falcão 12 Futsal Academy
+          </h1>
+          <span class="px-1.5 py-0.5 text-[10px] font-bold rounded bg-amber-400/20 text-amber-300 border border-amber-400/30">
+            PRO
+          </span>
+        </div>
+        <p class="text-[10px] text-slate-400 truncate hidden sm:block app-school-tagline">
+          Centro de Formação Tática & Alto Rendimento
+        </p>
+      </div>
+    </div>
+
+    <!-- Abas Principais de Navegação (SPA Multi-Abas) -->
+    <nav class="flex items-center bg-slate-950/80 p-1 rounded-xl border border-slate-800/80 shadow-inner">
+      <button data-tab="board"
+              class="nav-tab-btn px-3.5 py-1.5 rounded-lg text-xs flex items-center gap-2 transition-all bg-amber-400 text-slate-950 font-bold shadow-md shadow-amber-400/20">
+        <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+        <span>Prancheta Tática</span>
+      </button>
+
+      <button data-tab="library"
+              class="nav-tab-btn px-3.5 py-1.5 rounded-lg text-xs flex items-center gap-2 transition-all text-slate-300 hover:text-white font-medium">
+        <i data-lucide="folder-archive" class="w-4 h-4"></i>
+        <span>Biblioteca de Treinos</span>
+      </button>
+
+      <button data-tab="coaches"
+              class="nav-tab-btn px-3.5 py-1.5 rounded-lg text-xs flex items-center gap-2 transition-all text-slate-300 hover:text-white font-medium">
+        <i data-lucide="users" class="w-4 h-4"></i>
+        <span>Nossos Professores</span>
+      </button>
+    </nav>
+
+    <!-- Ações Rápidas do Cabeçalho -->
+    <div class="flex items-center gap-2">
+      <!-- Modos de Visualização da Quadra (Horizontal, Vertical, Meia-Quadra) -->
+      <div class="hidden md:flex items-center bg-slate-950/80 p-1 rounded-xl border border-slate-800/80">
+        <button data-mode="horizontal"
+                data-tooltip="Quadra Inteira Horizontal"
+                class="view-mode-btn p-1.5 rounded-lg text-xs bg-amber-400 text-slate-950 font-bold transition-all">
+          <i data-lucide="rectangle-horizontal" class="w-4 h-4"></i>
+        </button>
+        <button data-mode="vertical"
+                data-tooltip="Quadra Inteira Vertical"
+                class="view-mode-btn p-1.5 rounded-lg text-xs text-slate-400 hover:text-white transition-all">
+          <i data-lucide="rectangle-vertical" class="w-4 h-4"></i>
+        </button>
+        <button data-mode="half"
+                data-tooltip="Meia-Quadra (Ataque / Bolas Paradas)"
+                class="view-mode-btn p-1.5 rounded-lg text-xs text-slate-400 hover:text-white transition-all">
+          <i data-lucide="square" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Configurações da Quadra & Identidade -->
+      <button id="btn-open-court-settings"
+              data-tooltip="Configurações da Quadra & Identidade"
+              class="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-amber-400 border border-slate-700/80 transition-all">
+        <i data-lucide="palette" class="w-4 h-4"></i>
+      </button>
+
+      <!-- Exportar PNG Full HD -->
+      <button id="btn-export-highres-png"
+              class="py-1.5 px-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-bold flex items-center gap-1.5 transition-all shadow-md shadow-amber-400/20">
+        <i data-lucide="download" class="w-4 h-4"></i>
+        <span class="hidden sm:inline">Exportar PNG</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- =========================================================================
+       2. CORPO PRINCIPAL - SPA MULTI-ABAS
+       ========================================================================= -->
+  <main class="flex-1 relative overflow-hidden flex flex-col">
+
+    <!-- -----------------------------------------------------------------------
+         ABA 1: PRANCHETA TÁTICA (TACTICALPAD CORE)
+         ----------------------------------------------------------------------- -->
+    <div id="tab-board-container" class="w-full h-full flex flex-col overflow-hidden relative">
+
+      <!-- Barra Superior da Prancheta: Formações Rápidas & Materiais de Treino -->
+      <div class="h-11 bg-slate-900/80 border-b border-slate-800 px-3 flex items-center justify-between shrink-0 gap-3 text-xs overflow-x-auto no-scrollbar">
+        
+        <!-- Formações Rápidas (3-1, 4-0, 2-2, 1-2-1, 5x4, Defesa em Zona) -->
+        <div class="flex items-center gap-1.5 shrink-0">
+          <span class="text-slate-400 text-[11px] font-semibold flex items-center gap-1 mr-1">
+            <i data-lucide="shapes" class="w-3.5 h-3.5 text-amber-400"></i>
+            Sistemas:
+          </span>
+          <button data-formation="3-1" data-team="A" class="formation-btn px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-[11px] transition-colors">
+            3-1 (Pivô)
+          </button>
+          <button data-formation="4-0" data-team="A" class="formation-btn px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-[11px] transition-colors">
+            4-0 (Linha)
+          </button>
+          <button data-formation="2-2" data-team="A" class="formation-btn px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-[11px] transition-colors">
+            2-2 (Quadrado)
+          </button>
+          <button data-formation="1-2-1" data-team="A" class="formation-btn px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-[11px] transition-colors">
+            1-2-1 (Losango)
+          </button>
+          <button data-formation="5x4" data-team="A" class="formation-btn px-2 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-bold text-[11px] transition-colors">
+            5x4 Gol-Linha
+          </button>
+          <button data-formation="def_zona" data-team="B" class="formation-btn px-2 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 font-semibold text-[11px] transition-colors">
+            Defesa Zona
+          </button>
+        </div>
+
+        <div class="h-5 w-px bg-slate-800 shrink-0"></div>
+
+        <!-- Adicionar Jogadores / Bolas -->
+        <div class="flex items-center gap-1.5 shrink-0">
+          <button id="btn-add-player-a"
+                  data-tooltip="Adicionar Jogador Time A (Escolinha)"
+                  class="px-2 py-1 rounded-lg bg-blue-600/30 hover:bg-blue-600/50 text-blue-200 border border-blue-500/40 font-semibold flex items-center gap-1 text-[11px]">
+            <i data-lucide="user-plus" class="w-3.5 h-3.5 text-blue-400"></i>
+            + Time A
+          </button>
+          <button id="btn-add-player-b"
+                  data-tooltip="Adicionar Jogador Time B (Adversário)"
+                  class="px-2 py-1 rounded-lg bg-red-600/30 hover:bg-red-600/50 text-red-200 border border-red-500/40 font-semibold flex items-center gap-1 text-[11px]">
+            <i data-lucide="user-plus" class="w-3.5 h-3.5 text-red-400"></i>
+            + Time B
+          </button>
+          <button id="btn-add-gk-a"
+                  data-tooltip="Adicionar Goleiro"
+                  class="px-2 py-1 rounded-lg bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-200 border border-emerald-500/40 font-semibold flex items-center gap-1 text-[11px]">
+            <i data-lucide="shield" class="w-3.5 h-3.5 text-emerald-400"></i>
+            + Goleiro
+          </button>
+        </div>
+
+        <div class="h-5 w-px bg-slate-800 shrink-0"></div>
+
+        <!-- Materiais e Equipamentos de Treino (Clique para Adicionar) -->
+        <div class="flex items-center gap-1 shrink-0">
+          <span class="text-slate-400 text-[11px] font-semibold mr-1">Materiais:</span>
+          
+          <button data-type="ball" class="add-equipment-btn p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700" data-tooltip="+ Bola de Futsal">
+            <i data-lucide="circle-dot" class="w-3.5 h-3.5"></i>
+          </button>
+
+          <button data-type="cone" data-color="#F97316" class="add-equipment-btn p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-orange-400 border border-slate-700" data-tooltip="+ Cone Alto">
+            <i data-lucide="triangle" class="w-3.5 h-3.5"></i>
+          </button>
+
+          <button data-type="disc" data-color="#FFCC00" class="add-equipment-btn p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-yellow-400 border border-slate-700" data-tooltip="+ Chapéu Chinês (Pratinho)">
+            <i data-lucide="disc" class="w-3.5 h-3.5"></i>
+          </button>
+
+          <button data-type="ladder" class="add-equipment-btn p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-yellow-300 border border-slate-700" data-tooltip="+ Escada de Agilidade">
+            <i data-lucide="align-justify" class="w-3.5 h-3.5"></i>
+          </button>
+
+          <button data-type="hurdle" class="add-equipment-btn p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-rose-400 border border-slate-700" data-tooltip="+ Barreira de Salto">
+            <i data-lucide="minus" class="w-3.5 h-3.5 font-black"></i>
+          </button>
+
+          <button data-type="pole" class="add-equipment-btn p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-400 border border-slate-700" data-tooltip="+ Estaca de Drible">
+            <i data-lucide="git-commit" class="w-3.5 h-3.5"></i>
+          </button>
+
+          <button data-type="hoop" class="add-equipment-btn p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-pink-400 border border-slate-700" data-tooltip="+ Arco / Bambolê">
+            <i data-lucide="circle" class="w-3.5 h-3.5"></i>
+          </button>
+
+          <button data-type="mini_goal" class="add-equipment-btn p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white border border-slate-700" data-tooltip="+ Mini-Trave (Caixote)">
+            <i data-lucide="box" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+
+        <div class="h-5 w-px bg-slate-800 shrink-0"></div>
+
+        <!-- Ações de Edição: Desfazer, Refazer, Limpar Desenhos -->
+        <div class="flex items-center gap-1 shrink-0">
+          <button id="btn-undo" data-tooltip="Desfazer (Ctrl+Z)" disabled
+                  class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed text-slate-300 border border-slate-700">
+            <i data-lucide="undo-2" class="w-3.5 h-3.5"></i>
+          </button>
+
+          <button id="btn-redo" data-tooltip="Refazer (Ctrl+Y)" disabled
+                  class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed text-slate-300 border border-slate-700">
+            <i data-lucide="redo-2" class="w-3.5 h-3.5"></i>
+          </button>
+
+          <button id="btn-clear-drawings" data-tooltip="Limpar Desenhos e Setas"
+                  class="p-1.5 rounded-lg bg-slate-800 hover:bg-amber-900/50 text-slate-300 hover:text-amber-300 border border-slate-700">
+            <i data-lucide="brush" class="w-3.5 h-3.5"></i>
+          </button>
+
+          <button id="btn-reset-board" data-tooltip="Reiniciar Quadra Completa"
+                  class="p-1.5 rounded-lg bg-slate-800 hover:bg-rose-900/50 text-slate-300 hover:text-rose-400 border border-slate-700">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Área Central: Barra de Ferramentas Lateral + Canvas da Quadra + Bloco de Notas Lateral -->
+      <div class="flex-1 flex overflow-hidden relative">
+
+        <!-- Barra de Ferramentas de Desenho Tático (Esquerda) -->
+        <aside class="w-14 bg-slate-900/90 border-r border-slate-800/80 flex flex-col items-center py-2.5 gap-2 shrink-0 z-10 backdrop-blur-md">
+          
+          <!-- Seleção / Mover -->
+          <button data-tool="select"
+                  data-tooltip="Selecionar / Mover Atleta"
+                  class="tool-action-btn tool-btn w-10 h-10 rounded-xl bg-slate-800 text-slate-300 active border border-slate-700/80">
+            <i data-lucide="pointer" class="w-4 h-4"></i>
+          </button>
+
+          <div class="w-8 h-px bg-slate-800 my-0.5"></div>
+
+          <!-- Seta Contínua: Corrida / Movimentação sem bola -->
+          <button data-tool="arrow_solid"
+                  data-tooltip="Seta Contínua: Corrida sem Bola"
+                  class="tool-action-btn tool-btn w-10 h-10 rounded-xl bg-slate-800 text-slate-300 border border-slate-700/80">
+            <i data-lucide="move-right" class="w-4 h-4"></i>
+          </button>
+
+          <!-- Seta Tracejada: Passe ou Chute -->
+          <button data-tool="arrow_dashed"
+                  data-tooltip="Seta Tracejada: Passe ou Finalização"
+                  class="tool-action-btn tool-btn w-10 h-10 rounded-xl bg-slate-800 text-slate-300 border border-slate-700/80">
+            <i data-lucide="more-horizontal" class="w-4 h-4"></i>
+          </button>
+
+          <!-- Seta Ondulada (Zig-zag): Condução / Drible -->
+          <button data-tool="arrow_wavy"
+                  data-tooltip="Seta Ondulada: Condução com Drible"
+                  class="tool-action-btn tool-btn w-10 h-10 rounded-xl bg-slate-800 text-slate-300 border border-slate-700/80">
+            <i data-lucide="activity" class="w-4 h-4"></i>
+          </button>
+
+          <!-- Bloqueio / T-Bar -->
+          <button data-tool="arrow_tbar"
+                  data-tooltip="Seta em T: Bloqueio / Parede Tática"
+                  class="tool-action-btn tool-btn w-10 h-10 rounded-xl bg-slate-800 text-slate-300 border border-slate-700/80">
+            <i data-lucide="arrow-up-to-line" class="w-4 h-4"></i>
+          </button>
+
+          <div class="w-8 h-px bg-slate-800 my-0.5"></div>
+
+          <!-- Zona Retangular -->
+          <button data-tool="zone_rect"
+                  data-tooltip="Zona Retangular (Espaço Vazio / Pressão)"
+                  class="tool-action-btn tool-btn w-10 h-10 rounded-xl bg-slate-800 text-slate-300 border border-slate-700/80">
+            <i data-lucide="square" class="w-4 h-4"></i>
+          </button>
+
+          <!-- Zona Elíptica -->
+          <button data-tool="zone_ellipse"
+                  data-tooltip="Zona Circular / Elíptica"
+                  class="tool-action-btn tool-btn w-10 h-10 rounded-xl bg-slate-800 text-slate-300 border border-slate-700/80">
+            <i data-lucide="circle" class="w-4 h-4"></i>
+          </button>
+
+          <!-- Linha de Conexão entre Atletas -->
+          <button data-tool="player_line"
+                  data-tooltip="Linha de Conexão Tática"
+                  class="tool-action-btn tool-btn w-10 h-10 rounded-xl bg-slate-800 text-slate-300 border border-slate-700/80">
+            <i data-lucide="git-commit" class="w-4 h-4"></i>
+          </button>
+
+          <!-- Borracha -->
+          <button data-tool="eraser"
+                  data-tooltip="Borracha: Clique para Apagar Item"
+                  class="tool-action-btn tool-btn w-10 h-10 rounded-xl bg-slate-800 text-slate-300 border border-slate-700/80">
+            <i data-lucide="eraser" class="w-4 h-4"></i>
+          </button>
+
+          <div class="w-8 h-px bg-slate-800 my-0.5"></div>
+
+          <!-- Paleta de Cores do Traço -->
+          <div class="flex flex-col gap-1.5 items-center">
+            <button data-color="#FFCC00" class="color-swatch-btn w-5 h-5 rounded-full bg-amber-400 ring-2 ring-white shadow"></button>
+            <button data-color="#FFFFFF" class="color-swatch-btn w-5 h-5 rounded-full bg-white shadow"></button>
+            <button data-color="#DC2626" class="color-swatch-btn w-5 h-5 rounded-full bg-red-600 shadow"></button>
+            <button data-color="#2563EB" class="color-swatch-btn w-5 h-5 rounded-full bg-blue-600 shadow"></button>
+            <button data-color="#10B981" class="color-swatch-btn w-5 h-5 rounded-full bg-emerald-500 shadow"></button>
+          </div>
+        </aside>
+
+        <!-- Container do Canvas Principal -->
+        <div id="canvas-container" class="flex-1 h-full w-full relative overflow-hidden flex items-center justify-center">
+          <canvas id="tactical-canvas"></canvas>
+
+          <!-- Inspetor Popover Flutuante de Jogador Selecionado (Bottom-Left) -->
+          <div id="item-inspector-panel" class="absolute bottom-4 left-4 z-20 w-64 hidden shadow-2xl">
+            <!-- Renderizado dinamicamente pelo JavaScript -->
+          </div>
+        </div>
+
+        <!-- Bloco de Notas Lateral do Treino (Direita - Retrátil) -->
+        <aside class="w-80 bg-slate-900/90 border-l border-slate-800/80 flex flex-col shrink-0 z-10 backdrop-blur-md">
+          <!-- Cabeçalho do Bloco -->
+          <div class="p-3 border-b border-slate-800 flex items-center justify-between">
+            <h3 class="text-xs font-bold text-white flex items-center gap-1.5 font-heading">
+              <i data-lucide="file-text" class="w-4 h-4 text-amber-400"></i>
+              Ficha Técnica do Treino
+            </h3>
+            <button id="btn-save-to-library"
+                    class="py-1 px-2.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs flex items-center gap-1 transition-all shadow-md shadow-amber-400/20">
+              <i data-lucide="bookmark-plus" class="w-3.5 h-3.5"></i>
+              Salvar
+            </button>
+          </div>
+
+          <!-- Campos Editáveis com Scroll -->
+          <div class="p-3.5 flex-1 overflow-y-auto space-y-3 text-xs">
+            <!-- Título do Treino -->
+            <div>
+              <label class="text-slate-400 text-[11px] block mb-1 font-semibold">Nome da Atividade / Treino</label>
+              <input type="text" id="drill-title-input" value="Saída de Pressão 3-1 com Rotação de Ala"
+                     placeholder="Ex: Saída de Bola 3-1"
+                     class="w-full bg-slate-800/90 border border-slate-700 rounded-xl px-3 py-1.5 text-white font-medium focus:border-amber-400 focus:outline-none" />
+            </div>
+
+            <!-- Categoria e Tipo em Grid -->
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="text-slate-400 text-[11px] block mb-1 font-semibold">Categoria / Turma</label>
+                <select id="drill-category-select"
+                        class="w-full bg-slate-800/90 border border-slate-700 rounded-xl px-2.5 py-1.5 text-white font-medium focus:border-amber-400 focus:outline-none">
+                  <option value="Sub-7">Sub-7</option>
+                  <option value="Sub-9">Sub-9</option>
+                  <option value="Sub-11">Sub-11</option>
+                  <option value="Sub-13">Sub-13</option>
+                  <option value="Sub-15" selected>Sub-15</option>
+                  <option value="Sub-17">Sub-17</option>
+                  <option value="Adulto">Adulto</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="text-slate-400 text-[11px] block mb-1 font-semibold">Tipo do Exercício</label>
+                <select id="drill-type-select"
+                        class="w-full bg-slate-800/90 border border-slate-700 rounded-xl px-2.5 py-1.5 text-white font-medium focus:border-amber-400 focus:outline-none">
+                  <option value="Tática" selected>Tática</option>
+                  <option value="Bola Parada">Bola Parada</option>
+                  <option value="Físico/Técnico">Físico/Técnico</option>
+                  <option value="Transição">Transição</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Duração e Professor Responsável -->
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="text-slate-400 text-[11px] block mb-1 font-semibold">Duração (min)</label>
+                <input type="number" id="drill-duration-input" value="25" min="5" max="120"
+                       class="w-full bg-slate-800/90 border border-slate-700 rounded-xl px-3 py-1.5 text-white font-medium text-center focus:border-amber-400 focus:outline-none" />
+              </div>
+              <div>
+                <label class="text-slate-400 text-[11px] block mb-1 font-semibold">Professor Resp.</label>
+                <input type="text" id="drill-author-input" value="Prof. Lucas Silveira"
+                       class="w-full bg-slate-800/90 border border-slate-700 rounded-xl px-3 py-1.5 text-white font-medium focus:border-amber-400 focus:outline-none" />
+              </div>
+            </div>
+
+            <!-- Objetivos Táticos -->
+            <div>
+              <label class="text-slate-400 text-[11px] block mb-1 font-semibold">Objetivos Principais</label>
+              <textarea id="drill-objectives-input" rows="2"
+                        placeholder="Ex: Desmarcar sob pressão, linha de passe diagonal..."
+                        class="w-full bg-slate-800/90 border border-slate-700 rounded-xl p-2.5 text-white font-normal leading-relaxed focus:border-amber-400 focus:outline-none">Desmarcar sob pressão, criar linha de passe diagonal, transição rápida para quadra de ataque com suporte no pivô.</textarea>
+            </div>
+
+            <!-- Regras do Exercício -->
+            <div>
+              <label class="text-slate-400 text-[11px] block mb-1 font-semibold">Regras e Dinâmica</label>
+              <textarea id="drill-rules-input" rows="2"
+                        placeholder="Ex: Máximo 2 toques por atleta..."
+                        class="w-full bg-slate-800/90 border border-slate-700 rounded-xl p-2.5 text-white font-normal leading-relaxed focus:border-amber-400 focus:outline-none">Máximo de 2 toques por atleta na primeira linha de construção; finalização em até 6 segundos.</textarea>
+            </div>
+
+            <!-- Pontos de Correção / Coaching Points -->
+            <div>
+              <label class="text-slate-400 text-[11px] block mb-1 font-semibold">Pontos de Correção (Coaching)</label>
+              <textarea id="drill-coaching-input" rows="2"
+                        placeholder="Ex: Orientação corporal perfilada..."
+                        class="w-full bg-slate-800/90 border border-slate-700 rounded-xl p-2.5 text-white font-normal leading-relaxed focus:border-amber-400 focus:outline-none">Atenção à postura perfilada para receber; pivô deve fixar o último defensor antes de pedir a bola.</textarea>
+            </div>
+
+            <!-- Exportação e Backup JSON -->
+            <div class="pt-2 border-t border-slate-800 flex items-center justify-between gap-2">
+              <button id="btn-export-json"
+                      class="flex-1 py-1.5 px-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-[11px] flex items-center justify-center gap-1 border border-slate-700 transition-colors">
+                <i data-lucide="file-json" class="w-3.5 h-3.5"></i>
+                Backup JSON
+              </button>
+
+              <label class="flex-1 py-1.5 px-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-[11px] flex items-center justify-center gap-1 border border-slate-700 cursor-pointer transition-colors">
+                <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+                Importar JSON
+                <input type="file" id="json-file-input" accept=".json" class="hidden" />
+              </label>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      <!-- Barra Inferior de Animação (Linha do Tempo / Timeline & Keyframes) -->
+      <footer class="h-14 bg-slate-900/95 border-t border-slate-800 px-4 flex items-center justify-between shrink-0 z-20 backdrop-blur-md">
+        
+        <!-- Controles de Reprodução: Play, Pause, Stop, Loop, Rastros -->
+        <div class="flex items-center gap-2 shrink-0">
+          <button id="btn-play-pause"
+                  data-tooltip="Reproduzir / Pausar Animação (Espaço)"
+                  class="w-9 h-9 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 flex items-center justify-center transition-all shadow-md shadow-amber-400/20">
+            <i data-lucide="play" class="w-4 h-4 fill-current"></i>
+          </button>
+
+          <button id="btn-stop-anim"
+                  data-tooltip="Parar e Voltar ao Início"
+                  class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center transition-colors border border-slate-700">
+            <i data-lucide="square" class="w-3.5 h-3.5 fill-current"></i>
+          </button>
+
+          <button id="btn-toggle-loop"
+                  data-tooltip="Repetir em Loop"
+                  class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 flex items-center justify-center transition-colors border border-slate-700">
+            <i data-lucide="repeat" class="w-3.5 h-3.5"></i>
+          </button>
+
+          <button id="btn-toggle-trails"
+                  data-tooltip="Exibir / Ocultar Rastros de Movimento"
+                  class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 flex items-center justify-center transition-colors border border-slate-700">
+            <i data-lucide="footprints" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+
+        <!-- Seletor de Velocidade -->
+        <div class="flex items-center bg-slate-950/80 p-1 rounded-xl border border-slate-800 text-[11px] shrink-0">
+          <button data-speed="0.5" class="speed-btn px-2 py-0.5 rounded-lg text-slate-400 hover:text-white transition-colors">0.5x</button>
+          <button data-speed="1.0" class="speed-btn px-2 py-0.5 rounded-lg bg-amber-400 text-slate-950 font-bold transition-colors">1.0x</button>
+          <button data-speed="1.5" class="speed-btn px-2 py-0.5 rounded-lg text-slate-400 hover:text-white transition-colors">1.5x</button>
+          <button data-speed="2.0" class="speed-btn px-2 py-0.5 rounded-lg text-slate-400 hover:text-white transition-colors">2.0x</button>
+        </div>
+
+        <!-- Lista de Miniaturas / Quadros-chave (Timeline Scrollável) -->
+        <div id="timeline-thumbnails-list" class="flex-1 flex items-center gap-2 overflow-x-auto mx-4 px-2 no-scrollbar">
+          <!-- Renderizado dinamicamente pelo JavaScript -->
+        </div>
+
+        <!-- Botões de Ação de Quadros (+ Frame, Duplicar, Excluir) -->
+        <div class="flex items-center gap-1.5 shrink-0">
+          <button id="btn-add-keyframe"
+                  class="py-1.5 px-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow-md shadow-blue-600/20">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+            <span>+ Quadro</span>
+          </button>
+
+          <button id="btn-duplicate-keyframe"
+                  data-tooltip="Duplicar Quadro Ativo"
+                  class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-colors">
+            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+          </button>
+
+          <button id="btn-delete-keyframe"
+                  data-tooltip="Excluir Quadro Ativo"
+                  class="p-2 rounded-xl bg-slate-800 hover:bg-rose-900/50 text-slate-400 hover:text-rose-400 border border-slate-700 transition-colors">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      </footer>
+    </div>
+
+    <!-- -----------------------------------------------------------------------
+         ABA 2: BIBLIOTECA DE TREINOS E JOGADAS
+         ----------------------------------------------------------------------- -->
+    <div id="tab-library-container" class="w-full h-full flex flex-col p-6 overflow-y-auto hidden">
+      <!-- Cabeçalho da Biblioteca -->
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-6 border-b border-slate-800">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <h2 class="text-2xl font-extrabold text-white font-heading">Biblioteca de Treinos e Jogadas</h2>
+            <span id="drills-count-badge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-400/20 text-amber-300 border border-amber-400/30">
+              5 treinos
+            </span>
+          </div>
+          <p class="text-sm text-slate-400">
+            Acervo prático de exercícios, bolas paradas ensaiadas e treinos táticos organizados por categoria.
+          </p>
+        </div>
+
+        <!-- Barra de Pesquisa e Filtro de Tipo -->
+        <div class="flex items-center gap-3">
+          <div class="relative w-64">
+            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-3"></i>
+            <input type="text" id="library-search-input" placeholder="Buscar por título, objetivo..."
+                   class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-white focus:border-amber-400 focus:outline-none" />
+          </div>
+
+          <select id="library-type-select"
+                  class="bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:border-amber-400 focus:outline-none font-medium">
+            <option value="all">Todos os Tipos</option>
+            <option value="Tática">Tática</option>
+            <option value="Bola Parada">Bola Parada</option>
+            <option value="Físico/Técnico">Físico/Técnico</option>
+            <option value="Transição">Transição</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Filtros de Categoria (Sub-7 a Adulto) -->
+      <div class="flex items-center gap-2 mb-6 overflow-x-auto pb-2 no-scrollbar">
+        <span class="text-xs font-bold text-slate-400 mr-1">Categorias:</span>
+        <button data-category="all" class="category-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-400 text-slate-950 transition-all">
+          Todas
+        </button>
+        <button data-category="Sub-7" class="category-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 hover:text-white transition-all">
+          Sub-7
+        </button>
+        <button data-category="Sub-9" class="category-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 hover:text-white transition-all">
+          Sub-9
+        </button>
+        <button data-category="Sub-11" class="category-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 hover:text-white transition-all">
+          Sub-11
+        </button>
+        <button data-category="Sub-13" class="category-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 hover:text-white transition-all">
+          Sub-13
+        </button>
+        <button data-category="Sub-15" class="category-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 hover:text-white transition-all">
+          Sub-15
+        </button>
+        <button data-category="Sub-17" class="category-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 hover:text-white transition-all">
+          Sub-17
+        </button>
+        <button data-category="Adulto" class="category-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 hover:text-white transition-all">
+          Adulto
+        </button>
+      </div>
+
+      <!-- Grid de Cards de Treinos -->
+      <div id="drills-gallery-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-12">
+        <!-- Renderizado dinamicamente pelo JavaScript -->
+      </div>
+    </div>
+
+    <!-- -----------------------------------------------------------------------
+         ABA 3: NOSSOS PROFESSORES (COMISSÃO TÉCNICA)
+         ----------------------------------------------------------------------- -->
+    <div id="tab-coaches-container" class="w-full h-full flex flex-col p-6 overflow-y-auto hidden">
+      <!-- Cabeçalho dos Professores -->
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-6 border-b border-slate-800">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <h2 class="text-2xl font-extrabold text-white font-heading">Nossa Comissão Técnica</h2>
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-500/20 text-blue-300 border border-blue-500/30">
+              Corpo Docente Especializado
+            </span>
+          </div>
+          <p class="text-sm text-slate-400">
+            Profissionais qualificados com registro no CREF e certificações oficiais para o desenvolvimento esportivo de excelência.
+          </p>
+        </div>
+
+        <button onclick="window.app.coachesManager.openCreateModal()"
+                class="py-2.5 px-4 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-bold flex items-center gap-2 transition-all shadow-lg shadow-amber-400/20">
+          <i data-lucide="user-plus" class="w-4 h-4"></i>
+          <span>Gerenciar Professores (Adicionar)</span>
+        </button>
+      </div>
+
+      <!-- Grid de Cards dos Professores -->
+      <div id="coaches-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-12">
+        <!-- Renderizado dinamicamente pelo JavaScript -->
+      </div>
+    </div>
+  </main>
+
+  <!-- =========================================================================
+       3. MODAL: CONFIGURAÇÕES DA QUADRA E IDENTIDADE VISUAL
+       ========================================================================= -->
+  <div id="court-settings-modal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="modal-content glass-panel w-full max-w-xl rounded-2xl overflow-hidden border border-slate-800 shadow-2xl flex flex-col max-h-[90vh]">
+      
+      <!-- Cabeçalho do Modal -->
+      <div class="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/60">
+        <h3 class="text-base font-bold text-white flex items-center gap-2 font-heading">
+          <i data-lucide="palette" class="w-4 h-4 text-amber-400"></i>
+          Configurações da Quadra & Identidade Visual
+        </h3>
+        <button id="btn-close-court-settings" class="p-1 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Formulário de Customização -->
+      <div class="p-6 overflow-y-auto space-y-4 text-xs">
+        
+        <!-- Nome e Slogan da Escolinha -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="text-slate-400 block mb-1 font-semibold">Nome da Escolinha / Equipe</label>
+            <input type="text" id="setting-school-name"
+                   class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white font-medium focus:border-amber-400 focus:outline-none" />
+          </div>
+          <div>
+            <label class="text-slate-400 block mb-1 font-semibold">Slogan / Subtítulo</label>
+            <input type="text" id="setting-tagline"
+                   class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white font-medium focus:border-amber-400 focus:outline-none" />
+          </div>
+        </div>
+
+        <!-- Presets de Piso de Futsal Oficial -->
+        <div>
+          <label class="text-slate-400 block mb-1 font-semibold">Preset Oficial do Piso da Quadra</label>
+          <select id="setting-pitch-preset"
+                  class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white font-semibold focus:border-amber-400 focus:outline-none">
+            <option value="blue">Azul Oficial (Tarasflex / Futsal Moderno)</option>
+            <option value="wood">Madeira Nobre (Parquet / Taboão)</option>
+            <option value="concrete">Cinza Concreto Polido / Epóxi</option>
+            <option value="green">Verde Tradicional (Resina Poliuretano)</option>
+            <option value="terracotta">Terracota / Laranja Futsal</option>
+          </select>
+        </div>
+
+        <!-- Seletor de Cores Personalizadas em Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+          <div>
+            <label class="text-slate-400 text-[10px] block mb-1 font-semibold">Piso Quadra</label>
+            <input type="color" id="setting-pitch-color" class="w-full h-8 rounded-lg cursor-pointer bg-transparent" />
+          </div>
+          <div>
+            <label class="text-slate-400 text-[10px] block mb-1 font-semibold">Área / Garrafão</label>
+            <input type="color" id="setting-area-color" class="w-full h-8 rounded-lg cursor-pointer bg-transparent" />
+          </div>
+          <div>
+            <label class="text-slate-400 text-[10px] block mb-1 font-semibold">Linhas Quadra</label>
+            <input type="color" id="setting-line-color" class="w-full h-8 rounded-lg cursor-pointer bg-transparent" />
+          </div>
+          <div>
+            <label class="text-slate-400 text-[10px] block mb-1 font-semibold">Cor Primária</label>
+            <input type="color" id="setting-primary-color" class="w-full h-8 rounded-lg cursor-pointer bg-transparent" />
+          </div>
+          <div>
+            <label class="text-slate-400 text-[10px] block mb-1 font-semibold">Cor Destaque</label>
+            <input type="color" id="setting-secondary-color" class="w-full h-8 rounded-lg cursor-pointer bg-transparent" />
+          </div>
+          <div>
+            <label class="text-slate-400 text-[10px] block mb-1 font-semibold">Camisa Time A</label>
+            <input type="color" id="setting-team-a-color" class="w-full h-8 rounded-lg cursor-pointer bg-transparent" />
+          </div>
+          <div>
+            <label class="text-slate-400 text-[10px] block mb-1 font-semibold">Camisa Time B</label>
+            <input type="color" id="setting-team-b-color" class="w-full h-8 rounded-lg cursor-pointer bg-transparent" />
+          </div>
+        </div>
+
+        <!-- Upload de Logo e Opacidade -->
+        <div class="space-y-3 bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+          <div>
+            <label class="text-slate-400 block mb-1 font-semibold">Upload da Logo da Escolinha (PNG ou SVG)</label>
+            <input type="file" id="setting-logo-input" accept="image/*"
+                   class="w-full text-xs text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-amber-400 file:text-slate-950 hover:file:bg-amber-300 cursor-pointer" />
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 items-center">
+            <div>
+              <label class="text-slate-400 block mb-1 font-semibold">Opacidade da Logo Central</label>
+              <input type="range" id="setting-logo-opacity" min="0.05" max="0.8" step="0.05" value="0.25" class="w-full" />
+            </div>
+
+            <div class="flex items-center gap-2 pt-4">
+              <input type="checkbox" id="setting-corner-logos" class="rounded accent-amber-400 w-4 h-4 cursor-pointer" />
+              <label for="setting-corner-logos" class="text-slate-300 font-semibold cursor-pointer">Logos nos 4 Cantos</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rodapé do Modal -->
+      <div class="p-4 border-t border-slate-800 bg-slate-900/80 flex items-center justify-between">
+        <button id="btn-reset-court-settings" class="py-2 px-3 rounded-xl hover:bg-slate-800 text-rose-400 text-xs font-semibold transition-colors">
+          Restaurar Padrões
+        </button>
+
+        <div class="flex gap-2">
+          <button onclick="document.getElementById('court-settings-modal').classList.remove('open')"
+                  class="py-2 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition-colors">
+            Cancelar
+          </button>
+          <button id="btn-save-court-settings"
+                  class="py-2 px-5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-bold transition-all shadow-md shadow-amber-400/20">
+            Salvar Alterações
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       4. MODAL: GERENCIAR PROFESSORES (CRUD & FOTO)
+       ========================================================================= -->
+  <div id="coach-modal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="modal-content glass-panel w-full max-w-lg rounded-2xl overflow-hidden border border-slate-800 shadow-2xl flex flex-col max-h-[92vh]">
+      
+      <!-- Cabeçalho -->
+      <div class="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/60">
+        <h3 id="coach-modal-title" class="text-base font-bold text-white font-heading">
+          Adicionar Novo Professor
+        </h3>
+        <button onclick="window.app.coachesManager.closeModal()" class="p-1 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Formulário com Scroll -->
+      <form id="coach-form" class="p-5 overflow-y-auto space-y-3.5 text-xs">
+        
+        <!-- Foto Preview e Upload -->
+        <div class="flex items-center gap-4 bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+          <div class="w-16 h-16 rounded-xl overflow-hidden bg-slate-800 border-2 border-amber-400/40 shrink-0">
+            <img id="coach-photo-preview" src="" alt="Foto" class="w-full h-full object-cover" />
+          </div>
+          <div class="flex-1">
+            <label class="text-slate-400 block mb-1 font-semibold">Foto do Professor</label>
+            <input type="file" id="coach-photo-input" accept="image/*"
+                   class="w-full text-xs text-slate-400 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[11px] file:font-bold file:bg-amber-400 file:text-slate-950 hover:file:bg-amber-300 cursor-pointer" />
+          </div>
+        </div>
+
+        <!-- Nome e Cargo -->
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="text-slate-400 block mb-1 font-semibold">Nome Completo</label>
+            <input type="text" id="coach-name-input" required placeholder="Ex: Prof. Carlos Silva"
+                   class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-white font-medium focus:border-amber-400 focus:outline-none" />
+          </div>
+          <div>
+            <label class="text-slate-400 block mb-1 font-semibold">Cargo / Função</label>
+            <input type="text" id="coach-role-input" required placeholder="Ex: Treinador Sub-13 / Sub-15"
+                   class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-white font-medium focus:border-amber-400 focus:outline-none" />
+          </div>
+        </div>
+
+        <!-- Categorias e Registro CREF -->
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="text-slate-400 block mb-1 font-semibold">Categorias (separadas por vírgula)</label>
+            <input type="text" id="coach-categories-input" placeholder="Ex: Sub-11, Sub-13"
+                   class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-white font-medium focus:border-amber-400 focus:outline-none" />
+          </div>
+          <div>
+            <label class="text-slate-400 block mb-1 font-semibold">Registro Profissional (CREF)</label>
+            <input type="text" id="coach-cref-input" required placeholder="Ex: CREF 012345-G/SP"
+                   class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-white font-medium focus:border-amber-400 focus:outline-none" />
+          </div>
+        </div>
+
+        <!-- Licenças e Experiência -->
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="text-slate-400 block mb-1 font-semibold">Formação / Licenças</label>
+            <input type="text" id="coach-licenses-input" placeholder="Ex: Licença B Futsal | Pós-graduado"
+                   class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-white font-medium focus:border-amber-400 focus:outline-none" />
+          </div>
+          <div>
+            <label class="text-slate-400 block mb-1 font-semibold">Tempo de Experiência</label>
+            <input type="text" id="coach-experience-input" placeholder="Ex: 8 anos no futsal"
+                   class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-white font-medium focus:border-amber-400 focus:outline-none" />
+          </div>
+        </div>
+
+        <!-- Biografia -->
+        <div>
+          <label class="text-slate-400 block mb-1 font-semibold">Biografia e Trajetória</label>
+          <textarea id="coach-bio-input" rows="2" placeholder="Breve resumo da carreira e conquistas..."
+                    class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white font-normal leading-relaxed focus:border-amber-400 focus:outline-none"></textarea>
+        </div>
+
+        <!-- Filosofia de Treino -->
+        <div>
+          <label class="text-slate-400 block mb-1 font-semibold">Filosofia de Treino (Citação)</label>
+          <input type="text" id="coach-philosophy-input" placeholder="Ex: 'Disciplina e criatividade andam juntas no futsal.'"
+                 class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-white font-medium focus:border-amber-400 focus:outline-none" />
+        </div>
+
+        <!-- Contato (Email e Telefone) -->
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="text-slate-400 block mb-1 font-semibold">Email de Contato</label>
+            <input type="email" id="coach-email-input" placeholder="professor@escolinha.com"
+                   class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-white font-medium focus:border-amber-400 focus:outline-none" />
+          </div>
+          <div>
+            <label class="text-slate-400 block mb-1 font-semibold">Telefone / WhatsApp</label>
+            <input type="text" id="coach-phone-input" placeholder="(11) 99999-9999"
+                   class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-white font-medium focus:border-amber-400 focus:outline-none" />
+          </div>
+        </div>
+
+        <!-- Rodapé do Modal -->
+        <div class="pt-3 border-t border-slate-800 flex items-center justify-end gap-2">
+          <button type="button" onclick="window.app.coachesManager.closeModal()"
+                  class="py-2 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold transition-colors">
+            Cancelar
+          </button>
+          <button type="submit"
+                  class="py-2 px-5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold transition-all shadow-md shadow-amber-400/20">
+            Salvar Professor
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       SCRIPTS DA APLICAÇÃO (MODULARIDADE LIMPA)
+       ========================================================================= -->
+  <script src="js/config.js"></script>
+  <script src="js/pitch.js"></script>
+  <script src="js/board.js"></script>
+  <script src="js/animation.js"></script>
+  <script src="js/library.js"></script>
+  <script src="js/coaches.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>

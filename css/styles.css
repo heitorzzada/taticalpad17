@@ -1,0 +1,222 @@
+/* ==========================================================================
+   TACTICALPAD FUTSAL PRO - CUSTOM STYLES
+   Dark mode performance analysis aesthetic, glassmorphism & timeline styling
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --primary-color: #004AAD;
+  --secondary-color: #FFCC00;
+  --pitch-color: #1E3A5F;
+  --court-line-color: #FFFFFF;
+  --bg-dark: #0B1120;
+  --bg-surface: #131E32;
+  --bg-surface-elevated: #1E293B;
+  --border-color: rgba(255, 255, 255, 0.1);
+  --font-heading: 'Outfit', sans-serif;
+  --font-body: 'Inter', sans-serif;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg-dark);
+  color: #F1F5F9;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+h1, h2, h3, h4, .font-heading {
+  font-family: var(--font-heading);
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.6);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.5);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.8);
+}
+
+/* Glassmorphism */
+.glass-panel {
+  background: rgba(19, 30, 50, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-card {
+  background: rgba(30, 41, 59, 0.7);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  border-color: rgba(255, 204, 0, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.5);
+}
+
+/* Canvas Container */
+#canvas-container {
+  position: relative;
+  touch-action: none;
+  background-color: #070d19;
+}
+
+#tactical-canvas {
+  display: block;
+  touch-action: none;
+  cursor: default;
+}
+
+#tactical-canvas.cursor-crosshair {
+  cursor: crosshair;
+}
+
+#tactical-canvas.cursor-grab {
+  cursor: grab;
+}
+
+#tactical-canvas.cursor-grabbing {
+  cursor: grabbing;
+}
+
+#tactical-canvas.cursor-eraser {
+  cursor: cell;
+}
+
+/* Tool Buttons */
+.tool-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+.tool-btn:hover {
+  background-color: rgba(255, 255, 255, 0.12);
+  color: #FFFFFF;
+}
+
+.tool-btn.active {
+  background-color: var(--secondary-color);
+  color: #0B1120 !important;
+  font-weight: 700;
+  box-shadow: 0 0 15px rgba(255, 204, 0, 0.4);
+}
+
+.tool-btn.active svg {
+  stroke: #0B1120 !important;
+}
+
+/* Tooltips */
+[data-tooltip] {
+  position: relative;
+}
+
+[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 115%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #0f172a;
+  color: #f8fafc;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+  z-index: 100;
+  letter-spacing: 0.025em;
+}
+
+/* Timeline Keyframes */
+.timeline-frame {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid transparent;
+}
+
+.timeline-frame:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.timeline-frame.active {
+  border-color: var(--secondary-color);
+  background: rgba(255, 204, 0, 0.15);
+  box-shadow: 0 0 14px rgba(255, 204, 0, 0.3);
+}
+
+/* Pulse animation for recording or active play */
+@keyframes tactical-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.05);
+  }
+}
+
+.animate-tactical-pulse {
+  animation: tactical-pulse 1.8s infinite;
+}
+
+/* Modal Transitions */
+.modal-overlay {
+  background: rgba(3, 7, 18, 0.75);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.modal-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-content {
+  transform: scale(0.95);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-overlay.open .modal-content {
+  transform: scale(1);
+}
+
+/* Dragging equipment ghost indicator */
+.equipment-item {
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.equipment-item:hover {
+  transform: scale(1.08);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.equipment-item:active {
+  transform: scale(0.95);
+}
+
+/* Range input styling */
+input[type=range] {
+  accent-color: var(--secondary-color);
+}

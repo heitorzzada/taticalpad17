@@ -1,0 +1,74 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>{% block title %}{{ school_config.school_name|default:"TacticalPad Futsal Pro" }} - Prancheta Tática & Treinos{% endblock %}</title>
+  <meta name="description" content="Software profissional de análise de desempenho e prancheta tática para escolinhas e equipes de futsal." />
+  
+  <!-- Tailwind CSS CDN para utilitários flexíveis -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              blue: 'var(--primary-color)',
+              gold: 'var(--secondary-color)',
+              pitch: 'var(--court-floor)',
+              dark: 'var(--bg-dark)',
+              surface: 'var(--bg-surface)'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    window.safeRenderIcons = function() {
+      try {
+        if (typeof lucide !== 'undefined' && lucide.createIcons) {
+          lucide.createIcons();
+        }
+      } catch (e) {
+        console.warn("Lucide render:", e);
+      }
+    };
+  </script>
+
+  <!-- Arquitetura CSS3 Modular Baseada em Variáveis (:root) -->
+  <link rel="stylesheet" href="{% static 'css/variables.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/base.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/components.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/tacticalpad.css' %}" />
+
+  {% block extra_head %}{% endblock %}
+</head>
+
+<body class="bg-slate-950 text-slate-100 h-screen w-screen overflow-hidden flex flex-col font-sans select-none">
+  <!-- Token CSRF Global para AJAX/Fetch -->
+  {% csrf_token %}
+
+  <!-- Injeção da Configuração Ativa do Banco de Dados no Escopo Global JS -->
+  <script>
+    window.SCHOOL_CONFIG = {{ config_json|safe }};
+  </script>
+
+  {% block content %}{% endblock %}
+
+  <!-- Scripts Modularizados da Aplicação -->
+  <script src="{% static 'js/api.js' %}"></script>
+  <script src="{% static 'js/court.js' %}"></script>
+  <script src="{% static 'js/players.js' %}"></script>
+  <script src="{% static 'js/drawings.js' %}"></script>
+  <script src="{% static 'js/timeline.js' %}"></script>
+  <script src="{% static 'js/app.js' %}"></script>
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

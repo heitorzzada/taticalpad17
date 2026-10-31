@@ -1,0 +1,159 @@
+/**
+ * ==============================================================================
+ * TACTICALPAD FUTSAL PRO - ARQUITETURA CSS MODULAR
+ * 3. COMPONENTS.CSS: Cabeçalho, Botões Ativos/Inativos, Modais, Cards & Badges
+ * ==============================================================================
+ */
+
+/* ==========================================
+   1. BOTÕES DE FERRAMENTAS & AÇÕES
+   ========================================== */
+.tool-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--text-muted);
+  border: 1px solid var(--border-subtle);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+  position: relative;
+}
+
+.tool-btn:hover {
+  background-color: rgba(255, 255, 255, 0.12);
+  color: #FFFFFF;
+}
+
+.tool-btn.active {
+  background-color: var(--secondary-color) !important;
+  color: #0B1120 !important;
+  border-color: var(--secondary-color) !important;
+  font-weight: 700;
+  box-shadow: var(--shadow-glow);
+}
+
+.tool-btn.active svg {
+  stroke: #0B1120 !important;
+}
+
+/* Tooltips */
+[data-tooltip] {
+  position: relative;
+}
+
+[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 115%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #0F172A;
+  color: #F8FAFC;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-medium);
+  box-shadow: var(--shadow-md);
+  pointer-events: none;
+  z-index: 999;
+  letter-spacing: 0.02em;
+}
+
+/* ==========================================
+   2. NAVEGAÇÃO DE ABAS
+   ========================================== */
+.nav-tab-btn {
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+.nav-tab-btn.active {
+  background-color: var(--secondary-color);
+  color: #0B1120;
+  font-weight: 700;
+  box-shadow: 0 4px 14px rgba(255, 204, 0, 0.25);
+}
+
+/* ==========================================
+   3. BADGES DE CATEGORIAS E TAGS
+   ========================================== */
+.category-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 700;
+  border: 1px solid transparent;
+}
+
+.badge-sub7 { background: rgba(244, 114, 182, 0.2); color: #F472B6; border-color: rgba(244, 114, 182, 0.35); }
+.badge-sub9 { background: rgba(192, 132, 252, 0.2); color: #C084FC; border-color: rgba(192, 132, 252, 0.35); }
+.badge-sub11 { background: rgba(129, 140, 248, 0.2); color: #818CF8; border-color: rgba(129, 140, 248, 0.35); }
+.badge-sub13 { background: rgba(34, 211, 238, 0.2); color: #22D3EE; border-color: rgba(34, 211, 238, 0.35); }
+.badge-sub15 { background: rgba(96, 165, 250, 0.2); color: #60A5FA; border-color: rgba(96, 165, 250, 0.35); }
+.badge-sub17 { background: rgba(52, 211, 153, 0.2); color: #34D399; border-color: rgba(52, 211, 153, 0.35); }
+.badge-adulto { background: rgba(251, 191, 36, 0.2); color: #FBBF24; border-color: rgba(251, 191, 36, 0.35); }
+
+/* ==========================================
+   4. MODAIS
+   ========================================== */
+.modal-overlay {
+  background: var(--bg-overlay);
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-normal);
+}
+
+.modal-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-content {
+  transform: scale(0.95);
+  transition: transform var(--transition-normal);
+}
+
+.modal-overlay.open .modal-content {
+  transform: scale(1);
+}
+
+/* ==========================================
+   5. INPUTS E CONTROLES DE FORMULÁRIO
+   ========================================== */
+input[type="text"],
+input[type="number"],
+input[type="email"],
+textarea,
+select {
+  background-color: rgba(17, 28, 46, 0.85);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-main);
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  transition: border-color var(--transition-fast);
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: var(--secondary-color) !important;
+  outline: none;
+}
+
+input[type="range"] {
+  accent-color: var(--secondary-color);
+}
+
+/* ==========================================
+   6. TOAST NOTIFICATIONS
+   ========================================== */
+#app-toast {
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-medium);
+  transition: all var(--transition-normal);
+}
