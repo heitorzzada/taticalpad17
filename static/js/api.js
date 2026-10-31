@@ -37,9 +37,10 @@ class TacticalApi {
    * Helper para chamadas Fetch seguras com cabeçalhos apropriados
    */
   async request(url, options = {}) {
+    const csrf = this.getCsrfToken() || this.csrfToken || "";
     const headers = {
       "Content-Type": "application/json",
-      "X-CSRFToken": this.csrfToken || this.getCsrfToken(),
+      "X-CSRFToken": csrf,
       ...(options.headers || {})
     };
 

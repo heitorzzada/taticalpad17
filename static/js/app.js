@@ -1002,15 +1002,20 @@ class TacticalPadApp {
     }
   }
 
-  async deleteDrillFromBackend(drillId, title) {
+  async deleteDrillFromBackend(drillId) {
+    const drill = this.drills.find(d => d.id === drillId || String(d.id) === String(drillId));
+    const title = drill ? drill.title : "este treino";
     if (!confirm(`Deseja realmente remover o treino "${title}"?`)) return;
     try {
       const res = await window.tacticalApi.deleteTacticalPlay(drillId);
-      if (res.status === "success") {
+      if (res && res.status === "success") {
         await this.loadDrillsFromBackend();
         this.showToast("Treino removido com sucesso.", "info");
+      } else {
+        this.showToast(res?.message || "Erro ao remover treino.", "error");
       }
     } catch (err) {
+      console.error("Erro ao remover treino:", err);
       this.showToast("Erro ao remover treino.", "error");
     }
   }
@@ -1092,7 +1097,7 @@ class TacticalPadApp {
                       class="flex-1 py-2 px-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-md shadow-amber-400/20">
                 <i data-lucide="play" class="w-3.5 h-3.5 fill-current"></i> Abrir na Prancheta
               </button>
-              <button onclick="window.app.deleteDrillFromBackend(${drill.id}, '${drill.title}')"
+              <button onclick="window.app.deleteDrillFromBackend(${drill.id})"
                       title="Excluir Treino"
                       class="p-2 rounded-xl bg-slate-800 hover:bg-rose-900/50 text-slate-400 hover:text-rose-400 border border-slate-700 transition-colors">
                 <i data-lucide="trash-2" class="w-4 h-4"></i>
@@ -1151,7 +1156,7 @@ class TacticalPadApp {
                       title="Editar Professor">
                 <i data-lucide="edit-3" class="w-4 h-4"></i>
               </button>
-              <button onclick="window.app.deleteProfessorFromBackend(${coach.id}, '${coach.name}')"
+              <button onclick="window.app.deleteProfessorFromBackend(${coach.id})"
                       class="p-1.5 rounded-lg bg-slate-900/80 hover:bg-rose-500 hover:text-white text-slate-400 transition-colors border border-slate-700 shadow"
                       title="Remover Professor">
                 <i data-lucide="trash-2" class="w-4 h-4"></i>
@@ -1293,15 +1298,20 @@ class TacticalPadApp {
     window.safeRenderIcons?.();
   }
 
-  async deleteProfessorFromBackend(id, name) {
+  async deleteProfessorFromBackend(id) {
+    const coach = this.professors.find(c => c.id === id || String(c.id) === String(id));
+    const name = coach ? coach.name : "este professor";
     if (!confirm(`Remover "${name}" da comissão técnica?`)) return;
     try {
       const res = await window.tacticalApi.deleteProfessor(id);
-      if (res.status === "success") {
+      if (res && res.status === "success") {
         await this.loadProfessorsFromBackend();
         this.showToast("Professor removido com sucesso.", "info");
+      } else {
+        this.showToast(res?.message || "Erro ao remover professor.", "error");
       }
     } catch (err) {
+      console.error("Erro ao remover professor:", err);
       this.showToast("Erro ao remover professor.", "error");
     }
   }

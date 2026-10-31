@@ -304,14 +304,16 @@ class CoachesManager {
   }
 
   deleteCoach(coachId) {
-    const coach = this.coaches.find(c => c.id === coachId);
+    const coach = this.coaches.find(c => String(c.id) === String(coachId));
     if (!coach) return;
 
     if (confirm(`Remover "${coach.name}" da comissão técnica?`)) {
-      this.coaches = this.coaches.filter(c => c.id !== coachId);
+      this.coaches = this.coaches.filter(c => String(c.id) !== String(coachId));
       this.saveToStorage();
       this.renderCoaches();
-      this.app.showNotification("Professor removido.", "info");
+      if (this.app?.showNotification) {
+        this.app.showNotification("Professor removido.", "info");
+      }
     }
   }
 
