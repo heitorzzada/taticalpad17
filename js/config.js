@@ -55,10 +55,11 @@ const SCHOOL_CONFIG = {
   secondaryColor: "#FFCC00",     // Amarelo Ouro (Acentos, Realces e Botões Ativos)
   
   // Cores e Texturas da Quadra de Futsal Oficial
-  pitchPreset: "blue",           // "blue" | "wood" | "concrete" | "green" | "terracotta"
-  pitchColor: "#1E3A5F",         // Piso da Quadra
-  pitchAreaColor: "#142640",     // Área de Gol / Garrafão (contraste sutil ou destaque)
+  pitchPreset: "wood",           // "wood" | "blue" | "concrete" | "green" | "terracotta"
+  pitchColor: "#C87B2E",         // Piso da Quadra
+  pitchAreaColor: "#C87B2E",     // Área de Gol / Garrafão
   courtLineColor: "#FFFFFF",     // Linhas demarcatórias oficiais
+  woodFloorUrl: "img/court/wood_floor.jpg", // Textura fotorrealista de madeira sem marcações
   
   // Logo da Equipe na Quadra
   logoUrl: DEFAULT_FUTSAL_CREST_SVG,

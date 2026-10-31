@@ -22,6 +22,10 @@ class PitchRenderer {
     this.logoLoaded = false;
     this.loadLogo(SCHOOL_CONFIG.logoUrl);
 
+    this.woodImage = null;
+    this.woodLoaded = false;
+    this.loadWoodTexture(SCHOOL_CONFIG.woodFloorUrl || "img/court/wood_floor.jpg");
+
     // Métricas calculadas para transformação de coordenadas
     this.metrics = {
       scale: 1,
@@ -42,6 +46,25 @@ class PitchRenderer {
       this.logoLoaded = true;
     };
     this.logoImage.src = url;
+  }
+
+  loadWoodTexture(url) {
+    if (!url) return;
+    this.woodImage = new Image();
+    this.woodImage.crossOrigin = "anonymous";
+    this.woodImage.onload = () => {
+      this.woodLoaded = true;
+      this.render();
+    };
+    this.woodImage.onerror = () => {
+      if (url.startsWith("/static/")) {
+        const altUrl = url.replace("/static/", "");
+        if (this.woodImage.src !== altUrl) {
+          this.woodImage.src = altUrl;
+        }
+      }
+    };
+    this.woodImage.src = url;
   }
 
   setViewMode(mode) {
@@ -234,12 +257,12 @@ class PitchRenderer {
     const floorW = Math.abs(pBR.x - pTL.x);
     const floorH = Math.abs(pBR.y - pTL.y);
 
-    // 1. Piso da Quadra (Base Color)
-    ctx.fillStyle = SCHOOL_CONFIG.pitchColor;
+    // 1. Piso da Quadra (Base Color / Fallback)
+    ctx.fillStyle = SCHOOL_CONFIG.pitchColor || "#C87B2E";
     ctx.fillRect(floorX, floorY, floorW, floorH);
 
-    // 2. Se for preset de Madeira, desenha réguas de parquet elegantes
-    if (SCHOOL_CONFIG.pitchPreset === "wood") {
+    // 2. Se for preset de Madeira ou textura carregada, renderiza foto real sem marcações
+    if (SCHOOL_CONFIG.pitchPreset === "wood" || this.woodLoaded) {
       this.drawWoodTexture(floorX, floorY, floorW, floorH);
     }
 
@@ -253,13 +276,47 @@ class PitchRenderer {
   }
 
   /**
-   * Textura estilizada de tábuas de madeira de quadra oficial (Parquet)
+   * Textura de tábuas de madeira de quadra oficial (Parquet)
    */
-  drawWoodTexture(x, y, w, h) {
+  drawWoodTexture(floorX, floorY, floorW, floorH) {
     const ctx = this.ctx;
+
+    if (this.woodLoaded && this.woodImage && this.woodImage.naturalWidth > 0) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(floorX, floorY, floorW, floorH);
+      ctx.clip();
+
+      const imgW = this.woodImage.naturalWidth;
+      const imgH = this.woodImage.naturalHeight;
+
+      if (this.viewMode === "vertical") {
+        ctx.translate(floorX + floorW / 2, floorY + floorH / 2);
+        ctx.rotate(Math.PI / 2);
+        ctx.drawImage(this.woodImage, 0, 0, imgW, imgH, -floorH / 2, -floorW / 2, floorH, floorW);
+      } else if (this.viewMode === "half") {
+        const sx = Math.floor(imgW * 0.46);
+        const sw = Math.floor(imgW * 0.54);
+        ctx.drawImage(this.woodImage, sx, 0, sw, imgH, floorX, floorY, floorW, floorH);
+      } else {
+        ctx.drawImage(this.woodImage, 0, 0, imgW, imgH, floorX, floorY, floorW, floorH);
+      }
+
+      // Sutil vinheta / acabamento de verniz
+      const grad = ctx.createLinearGradient(floorX, floorY, floorX, floorY + floorH);
+      grad.addColorStop(0, "rgba(255, 255, 255, 0.05)");
+      grad.addColorStop(0.5, "rgba(0, 0, 0, 0)");
+      grad.addColorStop(1, "rgba(0, 0, 0, 0.06)");
+      ctx.fillStyle = grad;
+      ctx.fillRect(floorX, floorY, floorW, floorH);
+
+      ctx.restore();
+      return;
+    }
+
     ctx.save();
     ctx.beginPath();
-    ctx.rect(x, y, w, h);
+    ctx.rect(floorX, floorY, floorW, floorH);
     ctx.clip();
 
     const plankHeight = Math.max(12, Math.floor(18 * this.metrics.scale));
@@ -269,9 +326,9 @@ class PitchRenderer {
     ctx.lineWidth = 1;
 
     let row = 0;
-    for (let py = y; py < y + h; py += plankHeight) {
+    for (let py = floorY; py < floorY + floorH; py += plankHeight) {
       const offset = (row % 3) * (plankWidth / 3);
-      for (let px = x - offset; px < x + w; px += plankWidth) {
+      for (let px = floorX - offset; px < floorX + floorW; px += plankWidth) {
         ctx.fillStyle = (row + Math.floor(px / plankWidth)) % 2 === 0 
           ? "rgba(255, 255, 255, 0.03)" 
           : "rgba(0, 0, 0, 0.03)";
@@ -290,11 +347,11 @@ class PitchRenderer {
     if (!SCHOOL_CONFIG.pitchAreaColor || SCHOOL_CONFIG.pitchAreaColor === SCHOOL_CONFIG.pitchColor) return;
 
     const ctx = this.ctx;
+    ctx.save();
+    if (SCHOOL_CONFIG.pitchPreset === "wood") {
+      ctx.globalAlpha = 0.35;
+    }
     ctx.fillStyle = SCHOOL_CONFIG.pitchAreaColor;
-
-    // No futsal oficial: 6 metros de raio a partir de cada poste, conectados por linha reta de 3.16m
-    // Em escala virtual: Raio = 150 unidades (6m). Trave = 75 unidades (3m)
-    // Postes em Y: 212.5 e 287.5 (Centro Y = 250)
 
     // Área Esquerda (se não for modo half ou se for half esquerdo)
     if (this.viewMode !== "half") {
@@ -303,6 +360,7 @@ class PitchRenderer {
 
     // Área Direita
     this.drawSinglePenaltyAreaFloor(1000, 212.5, 287.5, 150, -1);
+    ctx.restore();
   }
 
   drawSinglePenaltyAreaFloor(goalLineX, post1Y, post2Y, radius, dir) {

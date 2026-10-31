@@ -32,11 +32,11 @@ class SchoolConfig(models.Model):
     # Cores e Piso da Quadra Oficial de Futsal
     pitch_preset = models.CharField(
         max_length=50, 
-        default="blue", 
+        default="wood", 
         verbose_name="Preset do Piso",
         choices=[
-            ("blue", "Azul Oficial (Tarasflex)"),
             ("wood", "Madeira Nobre (Parquet)"),
+            ("blue", "Azul Oficial (Tarasflex)"),
             ("concrete", "Cinza Concreto Polido"),
             ("green", "Verde Tradicional"),
             ("terracotta", "Terracota / Laranja"),
@@ -44,12 +44,12 @@ class SchoolConfig(models.Model):
     )
     pitch_color = models.CharField(
         max_length=30, 
-        default="#1E3A5F", 
+        default="#C87B2E", 
         verbose_name="Cor do Piso da Quadra"
     )
     pitch_area_color = models.CharField(
         max_length=30, 
-        default="#142640", 
+        default="#C87B2E", 
         verbose_name="Cor da Área de Gol / Garrafão"
     )
     court_line_color = models.CharField(
@@ -166,6 +166,7 @@ class SchoolConfig(models.Model):
             "pitchColor": self.pitch_color,
             "pitchAreaColor": self.pitch_area_color,
             "courtLineColor": self.court_line_color,
+            "woodFloorUrl": "/static/img/court/wood_floor.jpg",
             "logoUrl": logo,
             "logoOpacity": self.logo_opacity,
             "showCenterLogo": self.show_center_logo,

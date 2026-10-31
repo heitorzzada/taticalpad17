@@ -20,6 +20,10 @@ class PitchRenderer {
     this.logoLoaded = false;
     this.loadLogo(window.SCHOOL_CONFIG?.logoUrl || "");
 
+    this.woodImage = null;
+    this.woodLoaded = false;
+    this.loadWoodTexture(window.SCHOOL_CONFIG?.woodFloorUrl || "/static/img/court/wood_floor.jpg");
+
     // Controle de Zoom & Pan Estilo Desktop App (TacticalPad)
     this.zoom = 1.0;
     this.panX = 0;
@@ -48,6 +52,26 @@ class PitchRenderer {
       this.render();
     };
     this.logoImage.src = url;
+  }
+
+  loadWoodTexture(url) {
+    if (!url) return;
+    this.woodImage = new Image();
+    this.woodImage.crossOrigin = "anonymous";
+    this.woodImage.onload = () => {
+      this.woodLoaded = true;
+      this.render();
+    };
+    this.woodImage.onerror = () => {
+      // Fallback para caminhos relativos em aberturas locais
+      if (url.startsWith("/static/")) {
+        const altUrl = url.replace("/static/", "");
+        if (this.woodImage.src !== altUrl) {
+          this.woodImage.src = altUrl;
+        }
+      }
+    };
+    this.woodImage.src = url;
   }
 
   setViewMode(mode) {
@@ -237,16 +261,16 @@ class PitchRenderer {
     const floorW = Math.abs(pBR.x - pTL.x);
     const floorH = Math.abs(pBR.y - pTL.y);
 
-    // 1. Piso da Quadra
-    ctx.fillStyle = cfg.pitchColor || "#1E3A5F";
+    // 1. Piso da Quadra (Cor de fundo sólida de base/fallback)
+    ctx.fillStyle = cfg.pitchColor || "#C87B2E";
     ctx.fillRect(floorX, floorY, floorW, floorH);
 
-    // 2. Textura de Madeira Parquet (se ativado)
-    if (cfg.pitchPreset === "wood") {
+    // 2. Textura Real de Madeira (se preset for "wood" ou imagem carregada)
+    if (cfg.pitchPreset === "wood" || this.woodLoaded) {
       this.drawWoodTexture(floorX, floorY, floorW, floorH);
     }
 
-    // 3. Área de Gol / Garrafão (Cor de contraste)
+    // 3. Área de Gol / Garrafão (Cor de contraste se configurada)
     this.drawPenaltyAreasFloor();
 
     // Contorno exterior
@@ -255,11 +279,50 @@ class PitchRenderer {
     ctx.strokeRect(floorX, floorY, floorW, floorH);
   }
 
-  drawWoodTexture(x, y, w, h) {
+  drawWoodTexture(floorX, floorY, floorW, floorH) {
     const ctx = this.ctx;
+
+    // Se a imagem de textura fotorrealista sem marcações estiver carregada, desenha a foto real
+    if (this.woodLoaded && this.woodImage && this.woodImage.naturalWidth > 0) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(floorX, floorY, floorW, floorH);
+      ctx.clip();
+
+      const imgW = this.woodImage.naturalWidth;
+      const imgH = this.woodImage.naturalHeight;
+
+      if (this.viewMode === "vertical") {
+        // Rotaciona a textura 90 graus para que as tábuas acompanhem o comprimento vertical da quadra
+        ctx.translate(floorX + floorW / 2, floorY + floorH / 2);
+        ctx.rotate(Math.PI / 2);
+        ctx.drawImage(this.woodImage, 0, 0, imgW, imgH, -floorH / 2, -floorW / 2, floorH, floorW);
+      } else if (this.viewMode === "half") {
+        // Na meia-quadra direita, projeta a metade da imagem de madeira correspondente
+        const sx = Math.floor(imgW * 0.46);
+        const sw = Math.floor(imgW * 0.54);
+        ctx.drawImage(this.woodImage, sx, 0, sw, imgH, floorX, floorY, floorW, floorH);
+      } else {
+        // Modo horizontal inteiro: projeta a textura cobrindo perfeitamente a quadra
+        ctx.drawImage(this.woodImage, 0, 0, imgW, imgH, floorX, floorY, floorW, floorH);
+      }
+
+      // Sutil vinheta / acabamento de borda e verniz de ginásio
+      const grad = ctx.createLinearGradient(floorX, floorY, floorX, floorY + floorH);
+      grad.addColorStop(0, "rgba(255, 255, 255, 0.05)");
+      grad.addColorStop(0.5, "rgba(0, 0, 0, 0)");
+      grad.addColorStop(1, "rgba(0, 0, 0, 0.06)");
+      ctx.fillStyle = grad;
+      ctx.fillRect(floorX, floorY, floorW, floorH);
+
+      ctx.restore();
+      return;
+    }
+
+    // Procedural Fallback caso a imagem ainda esteja sendo baixada
     ctx.save();
     ctx.beginPath();
-    ctx.rect(x, y, w, h);
+    ctx.rect(floorX, floorY, floorW, floorH);
     ctx.clip();
 
     const plankH = Math.max(12, Math.floor(18 * this.metrics.scale));
@@ -269,9 +332,9 @@ class PitchRenderer {
     ctx.lineWidth = 1;
 
     let row = 0;
-    for (let py = y; py < y + h; py += plankH) {
+    for (let py = floorY; py < floorY + floorH; py += plankH) {
       const offset = (row % 3) * (plankW / 3);
-      for (let px = x - offset; px < x + w; px += plankW) {
+      for (let px = floorX - offset; px < floorX + floorW; px += plankW) {
         ctx.fillStyle = (row + Math.floor(px / plankW)) % 2 === 0 
           ? "rgba(255, 255, 255, 0.03)" 
           : "rgba(0, 0, 0, 0.03)";
@@ -287,10 +350,17 @@ class PitchRenderer {
     const cfg = window.SCHOOL_CONFIG || {};
     if (!cfg.pitchAreaColor || cfg.pitchAreaColor === cfg.pitchColor) return;
 
+    const ctx = this.ctx;
+    ctx.save();
+    if (cfg.pitchPreset === "wood") {
+      ctx.globalAlpha = 0.35; // Mantém a textura de madeira visível sob a pintura da área
+    }
+
     if (this.viewMode !== "half") {
       this.drawSinglePenaltyAreaFloor(0, 212.5, 287.5, 150, 1);
     }
     this.drawSinglePenaltyAreaFloor(1000, 212.5, 287.5, 150, -1);
+    ctx.restore();
   }
 
   drawSinglePenaltyAreaFloor(goalLineX, post1Y, post2Y, radius, dir) {
