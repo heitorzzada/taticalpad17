@@ -1159,7 +1159,7 @@ class TacticalPadApp {
             </div>
             <div class="absolute -bottom-8 left-6">
               <div class="w-20 h-20 rounded-2xl border-4 border-slate-900 overflow-hidden bg-slate-800 shadow-xl">
-                <img src="${coach.photoUrl}" alt="${coach.name}" class="w-full h-full object-cover" />
+                <img src="${coach.photoUrl}" alt="${coach.name}" class="w-full h-full object-cover object-top" />
               </div>
             </div>
           </div>

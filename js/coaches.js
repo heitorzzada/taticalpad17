@@ -93,7 +93,7 @@ class CoachesManager {
               <div class="w-20 h-20 rounded-2xl border-4 border-slate-900 overflow-hidden bg-slate-800 shadow-xl">
                 <img src="${coach.photoUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=500&q=80'}"
                      alt="${coach.name}"
-                     class="w-full h-full object-cover" />
+                     class="w-full h-full object-cover object-top" />
               </div>
             </div>
           </div>
